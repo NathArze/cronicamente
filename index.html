@@ -709,7 +709,7 @@
 
 <div id="musicToggle" title="Musica ON/OFF" style="position:fixed;bottom:20px;right:20px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ff69b4">&#9835;</div>
 <div id="settingsBtn" title="Configuracion" style="position:fixed;bottom:20px;right:70px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ff69b4">&#9881;</div>
-<div id="skipBtn" title="Saltar dialogue" style="position:fixed;bottom:20px;right:120px;z-index:10001;cursor:pointer;padding:10px 14px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4">saltar</div>
+<div id="skipBtn" title="Saltar dialogue" style="position:fixed;bottom:70px;right:20px;z-index:10001;cursor:pointer;padding:10px 14px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4">saltar</div>
 
 <div class="scanline-overlay"></div>
 
@@ -2099,7 +2099,37 @@ async function runPostBombChat() {
     msg('juca', 'estuvimos a nada de explotar', 400),
     msg('zas', 'buena jugada', 400),
     msg('pat', 'se filtraron estas fotos de Gyro', 600),
-    msg('pat', '<a href="https://youtu.be/oHg5SJYRHA0?si=SqsOmoLJslmpyQem" target="_blank" rel="noopener noreferrer" style="color:#44ff44;text-decoration:underline;cursor:pointer">fotos de gyro</a>', 400),
+  ]);
+
+  await sleep(200);
+  var mc = document.getElementById('chatMessages');
+  var linkMsg = document.createElement('div');
+  linkMsg.className = 'message';
+  linkMsg.style.animation = 'fadeIn .3s ease';
+  linkMsg.innerHTML = avatarHTML(C.pat) + '<div class="message-content"><div class="message-header"><span class="message-author" style="color:#b0b0b0">Pat</span><span class="message-timestamp">' + getCurrentTime() + '</span></div><div class="message-text"><a id="gyroLink" href="https://youtu.be/oHg5SJYRHA0?si=SqsOmoLJslmpyQem" target="_blank" rel="noopener noreferrer" style="color:#44ff44;text-decoration:underline;cursor:pointer">fotos de gyro</a></div></div>';
+  mc.appendChild(linkMsg);
+  mc.scrollTop = mc.scrollHeight;
+
+  var linkClicked = false;
+  document.getElementById('gyroLink').addEventListener('click', function() {
+    if (linkClicked) return;
+    linkClicked = true;
+    (function waitQueue() {
+      if (dialogueRunning) { setTimeout(waitQueue, 300); return; }
+      runQueue([
+        msg('gyro', 'jajajaja SE LO CREYO', 400),
+        msg('gyro', 'no eran fotos mias...', 400),
+        msg('pat', 'era un video clasico', 400),
+        msg('emily', 'no puede ser que abrio el enlace', 500),
+        msg('juca', 'JAJAJAJAJAJAJA', 300),
+        msg('zas', 'Te rickrollearon en pleno servidor', 500),
+        msg('emily', 'pobre ' + currentUser, 400),
+        msg('pat', 'victima #1, bienvenido al club', 500),
+      ]);
+    })();
+  });
+
+  await runQueue([
     msg('gyro', 'NO MIREN ESO', 300),
     msg('emily', 'jajajajaja', 300),
     msg('juca', 'ya es tarde', 300),
