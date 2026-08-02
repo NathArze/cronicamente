@@ -1,0 +1,2888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRONICAMENTE EN LINEA</title>
+<link rel="icon" type="image/png" href="icono.png">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @keyframes glitch {
+    0% { text-shadow: 2px 0 #ff00ff, -2px 0 #00ffff; }
+    25% { text-shadow: -2px 2px #ff00ff, 2px -2px #00ffff; }
+    50% { text-shadow: 2px -2px #ff00ff, -2px 2px #00ffff; }
+    75% { text-shadow: -2px 0 #ff00ff, 2px 0 #00ffff; }
+    100% { text-shadow: 2px 0 #ff00ff, -2px 0 #00ffff; }
+  }
+
+  @keyframes scanline {
+    0% { top: -100%; }
+    100% { top: 100%; }
+  }
+
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.6; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 5px #ff69b4, 0 0 10px #ff69b4; }
+    50% { box-shadow: 0 0 15px #ff69b4, 0 0 30px #ff69b4, 0 0 45px #ff00ff; }
+  }
+
+  @keyframes heartbeat {
+    0% { transform: scale(0); opacity: 0; }
+    15% { transform: scale(1.3); opacity: 1; }
+    30% { transform: scale(1); opacity: 1; }
+    45% { transform: scale(1.3); opacity: 1; }
+    60% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-10px, 6px); }
+    20% { transform: translate(9px, -7px); }
+    30% { transform: translate(-8px, -5px); }
+    40% { transform: translate(10px, 7px); }
+    50% { transform: translate(-9px, 5px); }
+    60% { transform: translate(8px, -6px); }
+    70% { transform: translate(-6px, 4px); }
+    80% { transform: translate(6px, -3px); }
+    90% { transform: translate(-4px, 2px); }
+  }
+
+  @keyframes explosion {
+    0% { transform: scale(0.1) rotate(0deg); opacity: 1; }
+    40% { transform: scale(1.4) rotate(20deg); opacity: 1; }
+    100% { transform: scale(2.2) rotate(40deg); opacity: 0; }
+  }
+
+  @keyframes flashWhite {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  body {
+    background: #0a0a0a;
+    color: #ff69b4;
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .scanline-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+  }
+  .scanline-overlay::after {
+    content: '';
+    position: absolute;
+    width: 100%; height: 200px;
+    background: linear-gradient(transparent, rgba(255,105,180,0.03), transparent);
+    animation: scanline 6s linear infinite;
+  }
+
+  .screen { display: none; width: 100vw; height: 100vh; position: relative; }
+  .screen.active { display: flex; }
+
+  #loginScreen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a0a1a 0%, #0a0a0a 70%);
+  }
+
+  .login-container { text-align: center; animation: fadeIn 1s ease; }
+
+  .game-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 28px;
+    color: #ff69b4;
+    animation: glitch 0.3s infinite, flicker 4s infinite;
+    margin-bottom: 5px;
+    line-height: 1.6;
+  }
+
+  .game-subtitle {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  .login-box {
+    border: 2px solid #ff69b4;
+    padding: 30px 40px;
+    background: rgba(26,10,26,0.9);
+    min-width: 320px;
+  }
+
+  .login-box h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    margin-bottom: 20px;
+    color: #ff69b4;
+  }
+
+  .login-box input {
+    width: 100%;
+    padding: 10px;
+    background: #0a0a0a;
+    border: 1px solid #ff69b4;
+    color: #ff69b4;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    margin-bottom: 15px;
+    outline: none;
+  }
+
+  .login-box input::placeholder { color: #663355; }
+
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid #ff69b4;
+    color: #ff69b4;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .login-btn:hover {
+    background: #ff69b4;
+    color: #0a0a0a;
+    box-shadow: 0 0 20px rgba(255,105,180,0.5);
+  }
+
+  .error-msg {
+    color: #ff4444;
+    font-size: 10px;
+    margin-bottom: 10px;
+    display: none;
+    font-family: 'Press Start 2P', cursive;
+  }
+
+  #pronounScreen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a0a1a 0%, #0a0a0a 70%);
+  }
+
+  .pronoun-box {
+    text-align: center;
+    animation: fadeIn 1s ease;
+    border: 2px solid #ff69b4;
+    padding: 30px 40px;
+    background: rgba(26,10,26,0.9);
+  }
+
+  .pronoun-box h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    margin-bottom: 15px;
+    color: #ff69b4;
+  }
+
+  .pronoun-box p {
+    margin-bottom: 20px;
+    color: #cc6699;
+  }
+
+  .pronoun-options { display: flex; gap: 15px; }
+
+  .pronoun-btn {
+    background: transparent;
+    border: 2px solid #ff69b4;
+    color: #ff69b4;
+    padding: 15px 20px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.3s;
+    min-width: 120px;
+  }
+  .pronoun-btn:hover {
+    background: #ff69b4;
+    color: #0a0a0a;
+    box-shadow: 0 0 20px rgba(255,105,180,0.5);
+  }
+
+  .pronoun-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  .pronoun-desc { font-size: 11px; }
+
+  #serverScreen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a0a1a 0%, #0a0a0a 70%);
+  }
+
+  .glitch-bar {
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #ff69b4, #ff00ff, #ff69b4, transparent);
+    width: 100%;
+    animation: glitch 0.5s infinite;
+  }
+
+  .server-container { text-align: center; animation: fadeIn 1s ease; }
+  .server-container h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  .server-container .subtitle { font-size: 11px; color: #666; margin-bottom: 20px; }
+
+  .server-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 2px solid #ff69b4;
+    padding: 15px 25px;
+    background: rgba(26,10,26,0.9);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+  }
+  .server-card:hover {
+    background: rgba(255,105,180,0.1);
+    box-shadow: 0 0 20px rgba(255,105,180,0.3);
+  }
+
+  .server-icon {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg, #ff69b4, #ff00ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    color: #0a0a0a;
+    overflow: hidden;
+  }
+
+  .server-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  .server-desc { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .server-members { font-size: 10px; color: #996699; display: flex; align-items: center; gap: 5px; }
+  .online-dot {
+    width: 8px; height: 8px;
+    background: #00cc66;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  #chatScreen {
+    flex-direction: row;
+    height: 100vh;
+  }
+
+  .channel-sidebar {
+    width: 220px;
+    background: #12101a;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1a1525;
+    overflow-y: auto;
+  }
+
+  .sidebar-header {
+    padding: 12px;
+    border-bottom: 1px solid #1a1525;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #ff69b4;
+  }
+
+  .channel-category {
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+    color: #666;
+    padding: 10px 12px 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-left: 3px solid transparent;
+    font-size: 13px;
+    color: #666;
+  }
+  .channel:hover { background: rgba(255,105,180,0.08); }
+  .channel.active { background: rgba(255,105,180,0.15); color: #ff69b4; border-left-color: #ff69b4; }
+  .channel-hash { font-weight: bold; margin-right: 2px; }
+  .channel-name { font-family: 'Share Tech Mono', monospace; }
+  .dm-channel { gap: 8px; }
+
+  .sidebar-separator {
+    height: 1px;
+    background: #1a1525;
+    margin: 8px 0;
+  }
+
+  .user-panel {
+    margin-top: auto;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #1a1525;
+    background: #0d0b14;
+  }
+
+  .user-avatar-panel {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #ff69b4, #ff00ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    color: #0a0a0a;
+    position: relative;
+  }
+
+  .status-dot {
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 10px; height: 10px;
+    background: #00cc66;
+    border-radius: 50%;
+    border: 2px solid #0d0b14;
+  }
+
+  .user-panel-info { flex: 1; }
+  .user-panel-name { font-size: 12px; font-weight: bold; }
+  .user-panel-status { font-size: 10px; color: #666; }
+
+  .chat-area { flex: 1; display: flex; flex-direction: column; }
+
+  .chat-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid #1a1525;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #12101a;
+  }
+  .chat-header-hash { font-size: 18px; color: #666; }
+  .chat-header-name { font-size: 14px; font-weight: bold; }
+  .chat-header-divider { width: 1px; height: 20px; background: #333; margin: 0 8px; }
+  .chat-header-topic { font-size: 11px; color: #666; }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .chat-messages::-webkit-scrollbar { width: 6px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+  .welcome-banner {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #1a1525;
+    margin-bottom: 10px;
+  }
+  .welcome-icon { font-size: 30px; margin-bottom: 10px; color: #ff69b4; }
+  .welcome-title { font-family: 'Press Start 2P', cursive; font-size: 12px; margin-bottom: 5px; }
+  .welcome-desc { font-size: 11px; color: #666; }
+
+  .date-divider {
+    text-align: center;
+    padding: 8px 0;
+    margin: 5px 0;
+  }
+  .date-divider span {
+    font-size: 10px;
+    color: #666;
+    background: #0a0a0a;
+    padding: 2px 8px;
+  }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0;
+  }
+  .message:hover { background: rgba(255,105,180,0.03); }
+
+  .message-avatar {
+    width: 36px; height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    color: #0a0a0a;
+    flex-shrink: 0;
+  }
+
+  .message-content { flex: 1; }
+  .message-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+  .message-author { font-size: 13px; font-weight: bold; }
+  .message-timestamp { font-size: 10px; color: #666; }
+  .message-text { font-size: 14px; color: #ddd; line-height: 1.4; }
+  .system-msg { color: #666; font-style: italic; text-align: center; font-size: 12px; padding: 5px 0; }
+
+  .chat-img-message img {
+    max-width: 280px;
+    max-height: 280px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .chat-img-message img:hover { opacity: 0.85; }
+
+  #imgLightbox {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+  }
+  #imgLightbox.active { display: flex; }
+  #imgLightbox img {
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(255,105,180,0.3);
+  }
+  #imgLightboxClose {
+    position: absolute;
+    top: 16px; right: 20px;
+    font-size: 28px;
+    color: #fff;
+    cursor: pointer;
+    width: 36px; height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    transition: all 0.2s;
+    background: rgba(0,0,0,0.5);
+  }
+  #imgLightboxClose:hover { background: #ff69b4; border-color: #ff69b4; color: #0a0a0a; }
+
+  .typing-indicator {
+    padding: 4px 16px;
+    font-size: 11px;
+    color: #666;
+    min-height: 20px;
+  }
+  .typing-dots { display: inline-flex; gap: 3px; }
+  .typing-dots span {
+    width: 4px; height: 4px;
+    background: #ff69b4;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  .response-options {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+    justify-content: center;
+  }
+
+  .response-btn {
+    background: linear-gradient(135deg, #1a0a1a, #120612);
+    border: 1px solid #ff69b4;
+    color: #ff69b4;
+    padding: 10px 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+  .response-btn:hover {
+    background: #ff69b4;
+    color: #0a0a0a;
+    box-shadow: 0 0 15px rgba(255,105,180,0.4);
+  }
+  .response-btn::before { content: '\25B8 '; opacity: 0.5; }
+
+  .chat-input-area {
+    padding: 10px 16px;
+    border-top: 1px solid #1a1525;
+    background: #12101a;
+  }
+  .chat-input-wrapper {
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input {
+    flex: 1;
+    padding: 10px;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    color: #ff69b4;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    outline: none;
+  }
+  .chat-input::placeholder { color: #663355; }
+  .send-btn {
+    padding: 10px 16px;
+    background: #ff69b4;
+    border: none;
+    color: #0a0a0a;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .send-btn:hover { box-shadow: 0 0 15px rgba(255,105,180,0.5); }
+
+  .users-sidebar {
+    width: 180px;
+    background: #12101a;
+    border-left: 1px solid #1a1525;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .users-header {
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+    color: #666;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #1a1525;
+    margin-bottom: 10px;
+  }
+  .user-category {
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+    color: #666;
+    padding: 10px 0 5px;
+    text-transform: uppercase;
+  }
+  .user-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+  }
+  .user-avatar {
+    width: 28px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #0a0a0a;
+    position: relative;
+  }
+  .user-name { font-size: 12px; }
+  .user-role-tag {
+    font-size: 8px;
+    border: 1px solid;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 4px;
+  }
+
+  .day-transition {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0a0a0a;
+    z-index: 15000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .day-transition.active { display: flex; }
+  .day-text {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 36px;
+    color: #ff69b4;
+    animation: glitch 0.3s infinite;
+  }
+  .day-sub {
+    font-size: 14px;
+    color: #996699;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.92);
+    z-index: 18000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal-box {
+    border: 2px solid #ff4444;
+    background: #1a0a0a;
+    padding: 30px 40px;
+    text-align: center;
+    min-width: 350px;
+  }
+  .modal-box h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #ff4444;
+    margin-bottom: 15px;
+  }
+  .modal-box p { font-size: 12px; color: #cc6666; margin-bottom: 20px; }
+  .modal-btns { display: flex; gap: 15px; justify-content: center; }
+
+  .modal-btn {
+    padding: 10px 20px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    cursor: pointer;
+    border: 2px solid;
+  }
+  .modal-btn-yes {
+    background: #ff4444;
+    border-color: #ff4444;
+    color: #fff;
+  }
+  .modal-btn-no {
+    background: transparent;
+    border-color: #ff69b4;
+    color: #ff69b4;
+  }
+  .modal-btn-no:hover { background: #ff69b4; color: #0a0a0a; }
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop preload="auto">
+  <source src="Pantalla%20de%20Carga.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="gyroAudio" loop preload="auto">
+  <source src="gyroaudio.wav" type="audio/wav">
+</audio>
+
+<div id="musicToggle" title="Musica ON/OFF" style="position:fixed;bottom:20px;right:20px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ff69b4">&#9835;</div>
+<div id="skipBtn" title="Saltar dialogue" style="position:fixed;bottom:20px;right:70px;z-index:10001;cursor:pointer;padding:10px 14px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4">saltar</div>
+
+<div class="scanline-overlay"></div>
+
+<div id="loginScreen" class="screen active">
+  <div class="login-container">
+    <div class="game-title" data-text="CRONICAMENTE">CRONICAMENTE</div>
+    <div class="game-title" data-text="EN LINEA" style="font-size:22px;margin-bottom:10px">EN LINEA</div>
+    <div class="game-subtitle">// sistema de comunicacion //</div>
+    <div class="login-box">
+      <h2>[ IDENTIFICACION ]</h2>
+      <input type="text" id="usernameInput" placeholder="&gt; ingresa tu alias..." maxlength="20" autocomplete="off">
+      <div class="error-msg" id="loginError"></div>
+      <button id="loginBtn" type="button" class="login-btn">[ CONECTAR ]</button>
+      <div style="text-align:center;margin-top:12px"><button id="diasBtn" type="button" style="background:transparent;border:1px solid #444;color:#444;font-family:'Press Start 2P',cursive;font-size:8px;padding:6px 14px;cursor:pointer;transition:all 0.3s">DIAS</button></div>
+    </div>
+    <div style="margin-top:30px;font-size:10px;color:#333;font-family:'Press Start 2P',cursive">v2.0.77</div>
+  </div>
+</div>
+
+<div id="pronounScreen" class="screen">
+  <div class="pronoun-box">
+    <h2>[ CONFIGURACION DE PERFIL ]</h2>
+    <p>Como deberiamos referirnos a ti?</p>
+    <div class="pronoun-options">
+      <button type="button" class="pronoun-btn" id="pronounEl"><div class="pronoun-label">El</div><div class="pronoun-desc">Pronombres masculinos</div></button>
+      <button type="button" class="pronoun-btn" id="pronounElla"><div class="pronoun-label">Ella</div><div class="pronoun-desc">Pronombres femeninos</div></button>
+      <button type="button" class="pronoun-btn" id="pronounElle"><div class="pronoun-label">Elle</div><div class="pronoun-desc">Pronombres neutros</div></button>
+    </div>
+  </div>
+</div>
+
+<div id="serverScreen" class="screen">
+  <div class="glitch-bar"></div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <div class="server-container">
+      <h2 style="margin-bottom:5px">[ SERVIDORES DISPONIBLES ]</h2>
+      <p class="subtitle">selecciona un servidor para continuar</p>
+      <div class="server-card" id="serverCard">
+        <div class="server-icon"><img src="icono.png" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="server-info">
+          <div class="server-name">Cronicamente en Linea</div>
+          <div class="server-desc">un espacio para almas conectadas al vacio digital</div>
+          <div class="server-members"><span class="online-dot"></span>5 usuarios en linea</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="glitch-bar"></div>
+</div>
+
+<div id="chatScreen" class="screen">
+  <div class="channel-sidebar">
+    <div class="sidebar-header"><h3>CRONICAMENTE</h3></div>
+    <div class="channel-category">canales de texto</div>
+    <div class="channel active" data-channel="chatGeneral"><span class="channel-hash">#</span><span class="channel-name">chatGeneral</span></div>
+    <div class="channel" data-channel="memes" id="channelMemes" style="display:none"><span class="channel-hash">#</span><span class="channel-name">memes</span></div>
+    <div class="channel" data-channel="llamada" id="channelLlamada" style="display:none"><span class="channel-hash">#</span><span class="channel-name">llamada</span></div>
+    <div class="channel" data-channel="llamadaGeneral" id="channelLlamadaGeneral" style="display:none"><span class="channel-hash">#</span><span class="channel-name">llamadaGeneral</span></div>
+    <div class="channel" data-channel="juegos" id="channelJuegos" style="display:none"><span class="channel-hash">#</span><span class="channel-name">juegos</span></div>
+    <div class="sidebar-separator"></div>
+    <div id="dmSection" style="display:none">
+      <div class="channel-category">mensajes directos</div>
+      <div class="channel dm-channel" data-channel="dm_emily" style="padding-left:16px"><div class="user-avatar" style="background:transparent;padding:0;overflow:hidden"><img src="Emilyicon.png" style="width:20px;height:20px;object-fit:cover;border-radius:4px"></div><span class="channel-name">Emily</span></div>
+      <div class="channel dm-channel" data-channel="dm_pat" style="padding-left:16px"><div class="user-avatar" style="background:transparent;padding:0;overflow:hidden"><img src="Paticon.png" style="width:20px;height:20px;object-fit:cover;border-radius:4px"></div><span class="channel-name">Pat</span></div>
+      <div class="channel dm-channel" data-channel="dm_gyro" style="padding-left:16px"><div class="user-avatar" style="background:linear-gradient(135deg,#7744cc,#9966ff);width:20px;height:20px;font-size:9px;min-width:20px">G</div><span class="channel-name">Gyro</span></div>
+      <div class="channel dm-channel" data-channel="dm_juca" style="padding-left:16px"><div class="user-avatar" style="background:linear-gradient(135deg,#44aa44,#66cc66);width:20px;height:20px;font-size:9px;min-width:20px">J</div><span class="channel-name">Juca</span></div>
+      <div class="channel dm-channel" data-channel="dm_zas" style="padding-left:16px"><div class="user-avatar" style="background:transparent;padding:0;overflow:hidden"><img src="Zasicon.png" style="width:20px;height:20px;object-fit:cover;border-radius:4px"></div><span class="channel-name">Zas</span></div>
+    </div>
+    <div class="sidebar-separator"></div>
+    <div class="user-panel">
+      <div class="user-avatar-panel"><span id="myAvatarLetter">?</span><div class="status-dot"></div></div>
+      <div class="user-panel-info"><div class="user-panel-name" id="myDisplayName">cargando...</div><div class="user-panel-status">en linea</div></div>
+    </div>
+  </div>
+  <div class="chat-area">
+    <div class="chat-header">
+      <span class="chat-header-hash" id="chatHeaderHash">#</span>
+      <span class="chat-header-name" id="chatHeaderName">general</span>
+      <div class="chat-header-divider"></div>
+      <span class="chat-header-topic" id="chatHeaderTopic">chat general - el corazon del servidor</span>
+      <div style="flex:1"></div>
+      <button id="perfilBtn" style="display:none;background:transparent;border:1px solid #ff69b4;color:#ff69b4;font-family:'Press Start 2P',cursive;font-size:8px;padding:6px 14px;cursor:pointer;transition:all 0.3s;white-space:nowrap" onmouseover="this.style.background='#ff69b4';this.style.color='#0a0a0a'" onmouseout="this.style.background='transparent';this.style.color='#ff69b4'">perfil</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="typing-indicator" id="typingIndicator"></div>
+    <div class="chat-input-area">
+      <div class="response-options" id="responseOptions" style="display:none"></div>
+      <div class="chat-input-wrapper" id="chatInputWrapper">
+        <input type="text" class="chat-input" id="chatInput" placeholder="&gt; escribe tu mensaje..." autocomplete="off">
+        <button type="button" class="send-btn" id="sendBtn">Enviar</button>
+      </div>
+    </div>
+  </div>
+  <div class="users-sidebar">
+    <div class="users-header" id="usersHeader">Usuarios en linea — 6</div>
+    <div class="users-list" id="usersList"></div>
+  </div>
+</div>
+
+<div class="day-transition" id="dayTransition">
+  <div class="day-text" id="dayText"></div>
+  <div class="day-sub" id="daySub"></div>
+</div>
+
+<div class="modal-overlay" id="leaveModal">
+  <div class="modal-box">
+    <h2>&#9888; &#191;ABANDONAR EL SERVIDOR? &#9888;</h2>
+    <p>Si sales, perderas toda la conversacion.</p>
+    <div class="modal-btns">
+      <button type="button" class="modal-btn modal-btn-yes" id="leaveYes">SALIR</button>
+      <button type="button" class="modal-btn modal-btn-no" id="leaveNo">QUEDARSE</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="perfilModal">
+  <div class="modal-box" style="min-width:320px;max-width:360px">
+    <div id="perfilContent" style="text-align:center"></div>
+    <div style="text-align:center;margin-top:20px">
+      <button type="button" class="modal-btn modal-btn-no" id="perfilClose">CERRAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="diasModal">
+  <div class="modal-box">
+    <h2>&#128197; SELECCIONAR DIA</h2>
+    <p style="font-size:12px;color:#cc6666;margin-bottom:20px">avanza hasta un dia especifico</p>
+    <div class="modal-btns" style="flex-direction:column;gap:10px">
+      <button type="button" class="modal-btn" id="diasDay1" style="border-color:#ff69b4;color:#ff69b4;width:100%">DIA 1</button>
+      <button type="button" class="modal-btn" id="diasDay2" style="border-color:#ff69b4;color:#ff69b4;width:100%">DIA 2</button>
+      <button type="button" class="modal-btn" id="diasDay3" style="border-color:#ff4444;color:#ff4444;width:100%">DIA 3</button>
+      <button type="button" class="modal-btn modal-btn-no" id="diasClose" style="margin-top:5px">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="imgLightbox">
+  <div id="imgLightboxClose">&times;</div>
+  <img id="imgLightboxSrc" src="">
+</div>
+
+<script>
+var currentUser = null;
+var playerPronoun = 'el';
+var currentDay = 1;
+var dialogueRunning = false;
+var canSendMessages = false;
+var musicPlaying = false;
+var extraDelay = 0;
+var skipRequested = false;
+var currentChannel = 'chatGeneral';
+
+var bgMusic = document.getElementById('bgMusic');
+var musicToggle = document.getElementById('musicToggle');
+
+function startMusic() {
+  bgMusic.volume = 0.3;
+  bgMusic.play().then(function() {
+    musicPlaying = true;
+    musicToggle.style.color = '#ff69b4';
+  }).catch(function() {});
+}
+
+musicToggle.addEventListener('click', function() {
+  if (musicPlaying) {
+    bgMusic.pause();
+    musicPlaying = false;
+    musicToggle.style.color = '#444';
+  } else {
+    startMusic();
+  }
+});
+
+document.addEventListener('click', function() {
+  if (!musicPlaying) startMusic();
+}, { once: true });
+
+var C = {
+  emily: { name: 'Emily', color: '#ff69b4', gradient: ['#ff69b4','#ff1493'], initial: 'E', icon: 'Emilyicon.png', role: null, roleColor: null, age: 22, favColor: '#ff69b4', games: 'Valorant, League of Legends', status: 'conectado', pct: 20 },
+  pat: { name: 'Pat', color: '#b0b0b0', gradient: ['#808080','#b0b0b0'], initial: 'P', icon: 'Paticon.png', role: null, roleColor: null, age: 24, favColor: '#808080', games: 'Counter Strike, Dota 2', status: 'conectado', pct: 20 },
+  gyro: { name: 'Gyro', color: '#9966ff', gradient: ['#7744cc','#9966ff'], initial: 'G', icon: null, role: 'streamer', roleColor: '#9966ff', age: 27, favColor: '#9966ff', games: 'Minecraft, Fortnite', status: 'conectado', pct: 20 },
+  juca: { name: 'Juca', color: '#66cc66', gradient: ['#44aa44','#66cc66'], initial: 'J', icon: null, role: null, roleColor: null, age: 21, favColor: '#66cc66', games: 'Stardew Valley, Terraria', status: 'conectado', pct: 20 },
+  zas: { name: 'Zas', color: '#ff4444', gradient: ['#cc2222','#ff4444'], initial: 'Z', icon: 'Zasicon.png', role: 'creador', roleColor: '#ff4444', age: 26, favColor: '#ff4444', games: 'Dark Souls, Elden Ring', status: 'conectado', pct: 20 }
+};
+
+function gendered(text) {
+  if (playerPronoun === 'el') return text.replace(/x/g, 'o');
+  if (playerPronoun === 'ella') return text.replace(/x/g, 'a');
+  return text;
+}
+
+function avatarHTML(ch, size) {
+  size = size || 36;
+  if (ch.icon) {
+    return '<div class="message-avatar" style="background:transparent;padding:0;overflow:hidden"><img src="' + ch.icon + '" style="width:' + size + 'px;height:' + size + 'px;object-fit:cover;border-radius:4px"></div>';
+  }
+  return '<div class="message-avatar" style="background:linear-gradient(135deg,' + ch.gradient[0] + ',' + ch.gradient[1] + ')">' + ch.initial + '</div>';
+}
+
+function showScreen(id) {
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) {
+    screens[i].classList.remove('active');
+  }
+  document.getElementById(id).classList.add('active');
+}
+
+function sleep(ms) {
+  return new Promise(function(resolve) {
+    if (skipRequested || daySkipTo >= 2) { resolve(); return; }
+    setTimeout(resolve, ms);
+  });
+}
+
+function getCurrentTime() {
+  var d = new Date();
+  return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+}
+
+var notifAudioCtx = null;
+function notifSound() {
+  try {
+    if (!notifAudioCtx) notifAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var o = notifAudioCtx.createOscillator();
+    var g = notifAudioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.08, notifAudioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, notifAudioCtx.currentTime + 0.06);
+    o.connect(g);
+    g.connect(notifAudioCtx.destination);
+    o.start();
+    o.stop(notifAudioCtx.currentTime + 0.06);
+  } catch(e) {}
+}
+
+function appendMsg(charKey, text) {
+  notifSound();
+  var mc = document.getElementById('chatMessages');
+  var ch = C[charKey];
+  var color = '#ff69b4';
+  var name = currentUser;
+  var avHTML = '<div class="message-avatar" style="background:linear-gradient(135deg,#ff69b4,#ff00ff)">' + currentUser.charAt(0).toUpperCase() + '</div>';
+  if (ch) {
+    color = ch.color;
+    name = ch.name;
+    avHTML = avatarHTML(ch);
+  }
+  var d = document.createElement('div');
+  d.className = 'message';
+  d.style.animation = 'fadeIn .3s ease';
+  d.innerHTML = avHTML + '<div class="message-content"><div class="message-header"><span class="message-author" style="color:' + color + '">' + name + '</span><span class="message-timestamp">' + getCurrentTime() + '</span></div><div class="message-text">' + text + '</div></div>';
+  mc.appendChild(d);
+  mc.scrollTop = mc.scrollHeight;
+}
+
+function appendSystemMsg(text) {
+  var mc = document.getElementById('chatMessages');
+  var d = document.createElement('div');
+  d.className = 'message';
+  d.style.animation = 'fadeIn .3s ease';
+  d.innerHTML = '<div class="message-content" style="width:100%"><div class="message-text system-msg">' + text + '</div></div>';
+  mc.appendChild(d);
+  mc.scrollTop = mc.scrollHeight;
+}
+
+function appendPlayerMsg(text) {
+  var mc = document.getElementById('chatMessages');
+  var d = document.createElement('div');
+  d.className = 'message';
+  d.style.animation = 'fadeIn .3s ease';
+  d.innerHTML = '<div class="message-avatar" style="background:linear-gradient(135deg,#ff69b4,#ff00ff)">' + currentUser.charAt(0).toUpperCase() + '</div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#ff69b4">' + currentUser + '</span><span class="message-timestamp">' + getCurrentTime() + '</span></div><div class="message-text">' + text + '</div></div>';
+  mc.appendChild(d);
+  mc.scrollTop = mc.scrollHeight;
+}
+
+function appendImgMsg(src, alt, charKey) {
+  var mc = document.getElementById('chatMessages');
+  var ch = charKey ? C[charKey] : null;
+  var d = document.createElement('div');
+  d.className = 'message';
+  d.style.animation = 'fadeIn .3s ease';
+  if (ch) {
+    d.innerHTML = avatarHTML(ch) + '<div class="message-content"><div class="message-header"><span class="message-author" style="color:' + ch.color + '">' + ch.name + '</span><span class="message-timestamp">' + getCurrentTime() + '</span></div><div class="chat-img-message"><img src="' + src + '" alt="' + (alt || '') + '"></div></div>';
+  } else {
+    d.innerHTML = '<div class="chat-img-message"><img src="' + src + '" alt="' + (alt || '') + '"></div>';
+  }
+  mc.appendChild(d);
+  mc.scrollTop = mc.scrollHeight;
+}
+
+function showAndWaitForResponse(options) {
+  return new Promise(function(resolve) {
+    skipRequested = false;
+    if (daySkipTo >= 2) {
+      var autoOpt = options[0];
+      appendPlayerMsg(autoOpt.text);
+      if (autoOpt.onSelect) { autoOpt.onSelect(resolve); } else { resolve(); }
+      return;
+    }
+    var container = document.getElementById('responseOptions');
+    document.getElementById('chatInputWrapper').style.display = 'none';
+    container.style.display = 'flex';
+    container.innerHTML = '';
+    options.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.className = 'response-btn';
+      btn.textContent = opt.text;
+      btn.addEventListener('click', function() {
+        appendPlayerMsg(opt.text);
+        hideResponses();
+        if (opt.onSelect) {
+          opt.onSelect(resolve);
+        } else {
+          resolve();
+        }
+      });
+      container.appendChild(btn);
+    });
+  });
+}
+
+function showLeaveModal() {
+  return new Promise(function(resolve) {
+    var overlay = document.getElementById('leaveModal');
+    overlay.classList.add('active');
+    document.getElementById('leaveYes').onclick = function() {
+      overlay.classList.remove('active');
+      location.reload();
+    };
+    document.getElementById('leaveNo').onclick = function() {
+      overlay.classList.remove('active');
+      extraDelay = 3000;
+      resolve();
+    };
+  });
+}
+
+function hideResponses() {
+  var el = document.getElementById('responseOptions');
+  el.style.display = 'none';
+  el.innerHTML = '';
+  document.getElementById('chatInputWrapper').style.display = 'flex';
+}
+
+function showHeart() {
+  var h = document.createElement('div');
+  h.textContent = '\u2665';
+  h.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;color:#ff1493;z-index:10000;pointer-events:none;animation:heartbeat 1s ease forwards;text-shadow:0 0 20px #ff69b4,0 0 40px #ff69b4';
+  document.body.appendChild(h);
+  setTimeout(function() { h.remove(); }, 1100);
+}
+
+var channelDescriptions = {
+  chatGeneral: 'chat general - el corazon del servidor',
+  memes: 'comparte memes, si tienes sentido del humor',
+  llamada: 'canal de voz',
+  llamadaGeneral: 'charla general por voz',
+  juegos: 'juegos del servidor'
+};
+
+function getChannelWelcome(name) {
+  return '<div class="welcome-banner"><div class="welcome-icon">&#9670;</div><div class="welcome-title">Bienvenido a #' + name + '</div><div class="welcome-desc">' + channelDescriptions[name] + '</div></div><div class="date-divider"><span>HOY</span></div>';
+}
+
+var channelData = {
+  chatGeneral: '',
+  memes: getChannelWelcome('memes') +
+    '<div class="message" style="animation:fadeIn .3s ease"><div class="message-avatar" style="background:linear-gradient(135deg,#7744cc,#9966ff)">G</div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#9966ff">Gyro</span><span class="message-timestamp">14:22</span></div><div class="chat-img-message"><img src="meme1.jpg"></div></div></div>' +
+    '<div class="message" style="animation:fadeIn .3s ease"><div class="message-avatar" style="background:transparent;padding:0;overflow:hidden"><img src="Emilyicon.png" style="width:36px;height:36px;object-fit:cover;border-radius:4px"></div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#ff69b4">Emily</span><span class="message-timestamp">14:23</span></div><div class="message-text">JAJAJAJA este es buenisisimo</div></div></div>' +
+    '<div class="message" style="animation:fadeIn .3s ease"><div class="message-avatar" style="background:linear-gradient(135deg,#7744cc,#9966ff)">G</div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#9966ff">Gyro</span><span class="message-timestamp">14:24</span></div><div class="chat-img-message"><img src="meme2.jpg"></div></div></div>' +
+    '<div class="message" style="animation:fadeIn .3s ease"><div class="message-avatar" style="background:transparent;padding:0;overflow:hidden"><img src="Zasicon.png" style="width:36px;height:36px;object-fit:cover;border-radius:4px"></div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#ff4444">Zas</span><span class="message-timestamp">14:25</span></div><div class="message-text">dejen de spamear</div></div></div>' +
+    '<div class="message" style="animation:fadeIn .3s ease"><div class="message-avatar" style="background:linear-gradient(135deg,#7744cc,#9966ff)">G</div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#9966ff">Gyro</span><span class="message-timestamp">14:25</span></div><div class="chat-img-message"><img src="meme3.jpg"></div></div></div>' +
+    '<div class="message" style="animation:fadeIn .3s ease"><div class="message-avatar" style="background:transparent;padding:0;overflow:hidden"><img src="Paticon.png" style="width:36px;height:36px;object-fit:cover;border-radius:4px"></div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#b0b0b0">Pat</span><span class="message-timestamp">14:26</span></div><div class="message-text">el de abajo es real</div></div></div>' +
+    '<div class="message" style="animation:fadeIn .3s ease"><div class="message-avatar" style="background:linear-gradient(135deg,#7744cc,#9966ff)">G</div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#9966ff">Gyro</span><span class="message-timestamp">14:27</span></div><div class="chat-img-message"><img src="meme4.jpg"></div></div></div>',
+  llamada: '',
+  llamadaGeneral: '',
+  juegos: '<div id="gameContainer" style="width:100%;height:100%;position:relative;overflow:hidden;background:#0a0a0a;cursor:none"></div>',
+  dm_emily: '<div class="welcome-banner"><div class="welcome-icon">&#9670;</div><div class="welcome-title">Emily</div><div class="welcome-desc">este es el inicio de tu conversacion privada con Emily</div></div><div class="date-divider"><span>HOY</span></div>',
+  dm_pat: '<div class="welcome-banner"><div class="welcome-icon">&#9670;</div><div class="welcome-title">Pat</div><div class="welcome-desc">este es el inicio de tu conversacion privada con Pat</div></div><div class="date-divider"><span>HOY</span></div>',
+  dm_gyro: '<div class="welcome-banner"><div class="welcome-icon">&#9670;</div><div class="welcome-title">Gyro</div><div class="welcome-desc">este es el inicio de tu conversacion privada con Gyro</div></div><div class="date-divider"><span>HOY</span></div>',
+  dm_juca: '<div class="welcome-banner"><div class="welcome-icon">&#9670;</div><div class="welcome-title">Juca</div><div class="welcome-desc">este es el inicio de tu conversacion privada con Juca</div></div><div class="date-divider"><span>HOY</span></div>',
+  dm_zas: '<div class="welcome-banner"><div class="welcome-icon">&#9670;</div><div class="welcome-title">Zas</div><div class="welcome-desc">este es el inicio de tu conversacion privada con Zas</div></div><div class="date-divider"><span>HOY</span></div>'
+};
+
+function saveCurrentChannel() {
+  channelData[currentChannel] = document.getElementById('chatMessages').innerHTML;
+}
+
+function switchChannel(name) {
+  if (name === currentChannel) return;
+  stopGame();
+  saveCurrentChannel();
+  currentChannel = name;
+  var mc = document.getElementById('chatMessages');
+  mc.innerHTML = channelData[name] || getChannelWelcome(name);
+  mc.scrollTop = mc.scrollHeight;
+  var isGame = name === 'juegos';
+  document.querySelector('.chat-input-area').style.display = isGame ? 'none' : '';
+  document.getElementById('typingIndicator').style.display = isGame ? 'none' : '';
+  document.getElementById('responseOptions').style.display = 'none';
+  mc.style.position = isGame ? 'relative' : '';
+  mc.style.padding = isGame ? '0' : '';
+  if (isGame) {
+    setTimeout(function() {
+      if (currentDay === 3) {
+        startBombGame();
+      } else {
+        startGame();
+      }
+    }, 100);
+  }
+}
+
+function msg(charKey, text, delay) {
+  return { char: charKey, text: text, delay: delay || 0, system: false };
+}
+
+function sysMsg(text, delay) {
+  return { char: null, text: text, delay: delay || 0, system: true };
+}
+
+async function runQueue(queue) {
+  dialogueRunning = true;
+  for (var i = 0; i < queue.length; i++) {
+    var item = queue[i];
+
+    if (item.type === 'response') {
+      skipRequested = false;
+      await showAndWaitForResponse(item.options);
+      continue;
+    }
+
+    if (!skipRequested && item.delay > 0) await sleep(item.delay + extraDelay);
+
+    if (item.type === 'img') {
+      appendImgMsg(item.src, item.alt, item.char);
+      continue;
+    }
+
+    if (!skipRequested) {
+      var indicator = document.getElementById('typingIndicator');
+      if (!item.system && item.char && C[item.char]) {
+        indicator.innerHTML = C[item.char].name + ' esta escribiendo <span class="typing-dots"><span></span><span></span><span></span></span>';
+        await sleep(600 + Math.random() * 800);
+        indicator.innerHTML = '';
+      }
+    }
+
+    if (item.system) {
+      appendSystemMsg(item.text);
+    } else {
+      appendMsg(item.char, item.text);
+    }
+  }
+  skipRequested = false;
+  dialogueRunning = false;
+}
+
+function sendMessage() {
+  var input = document.getElementById('chatInput');
+  input.value = '';
+}
+
+function showDayTransition(day, subtext) {
+  return new Promise(function(resolve) {
+    var el = document.getElementById('dayTransition');
+    document.getElementById('dayText').textContent = 'DIA ' + day;
+    document.getElementById('daySub').textContent = subtext;
+    el.classList.add('active');
+    setTimeout(function() {
+      el.classList.remove('active');
+      setTimeout(resolve, 500);
+    }, 2500);
+  });
+}
+
+function renderUsers() {
+  var list = document.getElementById('usersList');
+  var all = Object.values(C);
+  var html = '<div class="user-category">EN LINEA \u2014 ' + (all.length + 1) + '</div>';
+  all.forEach(function(c) {
+    var rt = c.role ? '<span class="user-role-tag" style="border-color:' + c.roleColor + ';color:' + c.roleColor + '">' + c.role + '</span>' : '';
+    var avInner = c.icon ? '<img src="' + c.icon + '" style="width:28px;height:28px;object-fit:cover;border-radius:4px">' : c.initial;
+    html += '<div class="user-item online"><div class="user-avatar" style="background:' + (c.icon ? 'transparent' : 'linear-gradient(135deg,' + c.gradient[0] + ',' + c.gradient[1] + ')') + '">' + avInner + '<div class="status-dot"></div></div><span class="user-name" style="color:' + c.color + '">' + c.name + '</span>' + rt + '</div>';
+  });
+  html += '<div class="user-item online"><div class="user-avatar" style="background:linear-gradient(135deg,#ff69b4,#ff00ff)">' + currentUser.charAt(0).toUpperCase() + '<div class="status-dot"></div></div><span class="user-name" style="color:#ff69b4">' + currentUser + '</span></div>';
+  list.innerHTML = html;
+  document.getElementById('usersHeader').textContent = 'Usuarios en linea \u2014 ' + (all.length + 1);
+}
+
+// ===== DAY 1 =====
+async function runDay1() {
+  await sleep(500);
+
+  await runQueue([
+    msg('pat', 'Las ballenas maman?', 400),
+    msg('zas', 'Obviamente, son mamiferos', 600),
+    msg('emily', 'claro...', 300),
+    msg('pat', 'Tienen pezon?', 500),
+    msg('zas', 'si, esta oculto dentro de una hendidura cerca de la cola, pero en lugar de succionar como un bebe humano, la madre expulsa la leche con la ayuda de musculos hacia la boca de la cria.', 800),
+    msg('emily', 'Definitivamente necesitaba saber que las ballenas tienen pezon', 600),
+    msg('juca', 'por que?', 400),
+    msg('zas', 'por que, que?', 300),
+    msg('juca', 'porque rayos sabes eso Zas', 500),
+    msg('emily', 'porque es Zas', 400),
+    msg('juca', 'Pero aun asi', 300),
+  ]);
+
+  await sleep(800);
+
+  await runQueue([
+    msg('zas', 'alguien entro al servidor', 600),
+    msg('gyro', 'y leyó como hablas de los pezones de las ballenas', 700),
+    msg('pat', 'jajajaj', 400),
+    msg('gyro', 'Por eso no tienes suerte con las chicas', 500),
+    msg('gyro', 'bueno, ninguno aqui realmente', 400),
+    msg('emily', 'yo si tengo suerte', 400),
+    msg('pat', 'Tu juras', 300),
+    msg('juca', 'volviendo a lo del nuevo usuario...', 500),
+    msg('zas', 'Acaba de entrar', 400),
+    msg('emily', 'Esperen', 300),
+    msg('emily', 'Voy a revisar su perfil', 500),
+    msg('pat', 'Emily...', 300),
+    msg('emily', 'Que?', 300),
+    msg('pat', 'Acaba de entrar', 400),
+    msg('emily', 'Precisamente', 300),
+    msg('pat', 'Eso no explica nada', 400),
+    msg('emily', 'La informacion temprana es importante', 500),
+    msg('zas', 'Eso suena como una justificacion', 400),
+    msg('emily', 'Es investigacion', 400),
+    msg('gyro', 'Investigacion de que exactamente?', 500),
+    msg('emily', 'De la nueva persona', 400),
+    msg('pat', 'Traduccion:', 300),
+    msg('pat', 'Tiene curiosidad', 400),
+    msg('emily', 'Callate', 300),
+    msg('emily', '...', 600),
+    msg('emily', 'Ok', 400),
+    msg('juca', 'Y?', 300),
+    msg('emily', gendered('Es lindx jeje'), 500),
+    msg('pat', '...', 400),
+    msg('pat', 'Ni siquiera ha hablado', 500),
+    msg('emily', 'Y mas importante...', 400),
+    msg('emily', 'yo soltera ;)', 500),
+    msg('juca', 'Emily JAJA', 400),
+    msg('gyro', 'Record nuevo', 400),
+    msg('pat', 'Cuanto tardaste?', 400),
+    msg('emily', 'Que?', 300),
+    msg('pat', 'En coquetear con alguien nuevo', 500),
+    msg('emily', 'No estoy coqueteando', 400),
+    msg('pat', 'Acabas de poner un guiño', 400),
+    msg('emily', 'Es un guiño amistoso', 400),
+    msg('zas', 'La probabilidad de que fuera interpretado como coqueteo es alta', 500),
+    msg('emily', 'Gracias por tu analisis romantico, Zas', 500),
+    msg('zas', 'De nada', 300),
+    msg('pat', 'Dios que desagradable eres Emily', 500),
+    msg('gyro', 'Esto se va a poner interesante', 400),
+    msg('emily', 'Esperen', 400),
+    msg('emily', 'Creo que esta viendo el chat', 500),
+    msg('juca', 'Le escribimos?', 400),
+    msg('emily', 'No', 300),
+    msg('emily', 'Hay que darle tiempo', 400),
+    msg('pat', 'Hace 5 segundos querias analizar su perfil como un acosador', 500),
+    msg('emily', 'Son cosas diferentes', 400),
+    msg('pat', 'Claro', 300),
+    msg('emily', '...', 600),
+    msg('emily', 'Ya escribio algo', 500),
+    msg('emily', 'Esperen', 300),
+  ]);
+
+  await sleep(500);
+  canSendMessages = true;
+
+  await showAndWaitForResponse([
+    { text: 'lol hola?' },
+    { text: 'Ok? Mejor me largo de aqui', onSelect: function(resolve) {
+      showLeaveModal().then(function() {
+        showAndWaitForResponse([
+          { text: 'lol hola?' }
+        ]).then(resolve);
+      });
+    }}
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('emily', 'JAJA', 400),
+    msg('emily', 'Hola', 400),
+    msg('juca', 'Holaaa :)', 500),
+    msg('pat', 'Confirmado', 400),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Confirmado que? jajaja' }
+  ]);
+
+  await sleep(300);
+
+  await runQueue([
+    msg('pat', 'Que eres una persona real', 500),
+    msg('pat', 'A veces Zas invita bots', 400),
+    msg('zas', 'Nunca he invitado bots', 500),
+    msg('pat', 'Eso diria un bot', 400),
+    msg('zas', '...', 500),
+    msg('gyro', 'Zas, reproduce musica', 400),
+    msg('pat', 'LOL', 300),
+    msg('emily', 'Ignoralos', 400),
+    msg('emily', 'Aunque si, esta es una bienvenida bastante normal aqui', 500),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Jajaja entonces entre al lugar correcto' },
+    { text: 'No se si sentirme seguro despues de eso' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('juca', 'Bueno a todo esto, cuales son tus pronombres?', 800),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'El' },
+    { text: 'Ella' },
+    { text: 'Elle' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('juca', gendered('Bien, entonces bienvenidx :)'), 500),
+    msg('pat', 'Muy incluyente juca', 400),
+    msg('juca', 'Gracias, contigo tambien lo soy amigo', 300),
+    msg('pat', 'imbecil', 300),
+    msg('emily', 'jajajajjaj', 400),
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('emily', 'Bueno, antes de seguir molestando', 600),
+    msg('emily', 'Presentaciones rapidas', 500),
+    msg('emily', 'Soy Emily', 400),
+    msg('emily', 'Me gustan los videojuegos, competir y ganar discusiones contra Pat', 600),
+    msg('pat', 'Nunca ganas', 400),
+    msg('emily', 'Mentira, aunque con joderte me basta', 500),
+    { type: 'img', src: 'porqueestastanobsesionadoconmigo.jpg', alt: 'pat obsession', char: 'pat' },
+    msg('pat', 'Si no fuera por Zas, te tendria bloqueada freaky', 500),
+    msg('emily', 'Lo mismo digo', 400),
+    msg('gyro', 'Esa fue una discusion de ustedes resumida', 500),
+    msg('emily', 'bueno', 300),
+    msg('emily', 'El es Pat', 400),
+    msg('pat', 'Hola,', 300),
+    msg('pat', 'Me gusta las sabras habanero y jugar LOL', 500),
+    msg('emily', 'Parece que odia todo', 400),
+    msg('pat', 'No todo', 400),
+    msg('emily', 'Ah no?', 300),
+    msg('pat', '...', 500),
+    msg('pat', 'Algunas cosas no', 400),
+    msg('gyro', 'Eso es lo mas cercano a un "me gusta algo" que vas a conseguir', 500),
+    msg('pat', 'Callate', 300),
+    msg('emily', 'Gyro es amigo de Pat', 400),
+    msg('gyro', 'Desafortunadamente', 400),
+    msg('pat', 'Como que desafortunadamente?', 400),
+    msg('gyro', 'Nos conocemos hace mucho', 500),
+    msg('emily', 'Gyro hace streams y diseno grafico', 400),
+    msg('emily', 'Basicamente es famoso pero intenta fingir que no', 500),
+    msg('gyro', 'No soy famoso', 400),
+    msg('pat', 'Dice la persona que entra a un juego y alguien reconoce su nombre', 600),
+    msg('gyro', 'Eso paso una vez', 400),
+    msg('pat', 'Una vez al dia, diras', 400),
+    msg('gyro', '...', 300),
+    msg('juca', 'yo creo que eres bueno Gyro :)', 500),
+    msg('gyro', 'Gracias, Juca', 400),
+    msg('emily', 'Ahora Juca', 400),
+    msg('juca', 'Hola otra vez :)', 400),
+    msg('emily', 'Es la persona mas amable del servidor', 500),
+    msg('pat', 'Demasiado', 300),
+    msg('juca', 'Demasiado?', 400),
+    msg('pat', 'Si', 300),
+    msg('pat', 'A veces parece que no puede decir que no', 500),
+    msg('juca', 'Eso no es cierto', 400),
+    msg('pat', '...', 300),
+    msg('juca', 'Bueno, tal vez un poco', 500),
+    msg('emily', 'JAJA', 300),
+    msg('emily', 'Y finalmente Zas', 400),
+    msg('zas', 'Hola', 300),
+    msg('emily', 'Nuestro creador', 400),
+    msg('pat', 'Nuestro soporte tecnico', 400),
+    msg('zas', 'No se que significa eso', 500),
+    msg('gyro', 'Significa que todos acudimos a ti cuando pasa algo', 500),
+    msg('juca', 'Porque siempre ayudas', 400),
+    msg('zas', 'Solo intento resolver problemas', 400),
+    msg('emily', 'Exacto', 300),
+    msg('emily', 'Eso es muy Zas', 400),
+  ]);
+
+  await sleep(500);
+
+  await showAndWaitForResponse([
+    { text: 'Creo que ya entendi quien es el favorito del grupo' },
+    { text: 'Parece que Zas es el adulto responsable jajaja' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('pat', 'Bueno, se podria decir que, si es responsable, en comparacion con nosotros', 600),
+    msg('gyro', 'Especialmente con Emily', 400),
+    msg('emily', 'Oye', 300),
+    msg('pat', 'Es verdad', 300),
+    msg('emily', 'Que grupo tan grosero', 500),
+    msg('juca', 'Emily es responsable', 400),
+    msg('juca', '....', 300),
+    msg('juca', 'Con sus rachas de tiktok por lo menos', 500),
+    msg('pat', 'Lol?', 300),
+    msg('gyro', 'Pat me bloqueo la otra vez por perderla por accidente', 600),
+    msg('pat', 'No me lo recuerdes, aun me duele el corazon al pensarlo', 600),
+    msg('pat', 'Siguiente tema', 400),
+    msg('emily', 'Bueno', 400),
+    msg('emily', 'Queremos saber de ti', 500),
+    msg('emily', 'Primera pregunta:', 500),
+    msg('emily', 'Como encontraste este servidor?', 600),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Aparecio y me dio curiosidad' },
+    { text: 'Estaba buscando gente para jugar' },
+    { text: 'No tengo idea, creo que fue suerte' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('zas', 'Interesante', 400),
+    msg('pat', 'Zas, no analices demasiado', 400),
+    msg('zas', 'Solo dije interesante', 300),
+    msg('pat', 'Ya empezo', 300),
+    msg('emily', 'JAJA', 300),
+    msg('emily', 'Bueno, otra pregunta importante', 500),
+    msg('emily', 'Que juegos juegas?', 400),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Me gustan los juegos competitivos, me gusta ganar jajaja' },
+    { text: 'Mas que ganar, me gusta pasarla bien' },
+    { text: 'Depende, suelo probar de todo' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('emily', 'Perfecto entonces', 400),
+    msg('emily', 'Creo que vas a sobrevivir aqui', 500),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Sobrevivir?' }
+  ]);
+
+  await sleep(300);
+
+  await runQueue([
+    msg('pat', 'Si', 300),
+    msg('pat', 'Es una palabra importante en este servidor', 500),
+    msg('juca', 'No le hagas caso', 400),
+    msg('juca', 'No es tan malo', 300),
+    msg('pat', 'Gracias por defenderme', 400),
+    msg('juca', 'No dije eso', 300),
+    msg('pat', '...', 300),
+    msg('gyro', 'JAJA', 300),
+    msg('emily', 'Ultima pregunta', 400),
+    msg('emily', 'Porque si queremos saber mas de ti', 500),
+    msg('emily', 'Sueles jugar con gente o eres mas de jugar solo/a?', 600),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Normalmente juego solo, pero estaria bien conocer gente' },
+    { text: 'Me gusta jugar acompanado' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('zas', 'Creo que deberiamos hacer una actividad manana', 600),
+    msg('pat', 'Actividad?', 400),
+    msg('zas', 'Si', 300),
+    msg('zas', 'Para integrar al nuevo miembro', 500),
+    msg('emily', 'Al miembro nuevo?', 400),
+    msg('zas', '.....', 300),
+    msg('zas', 'Enserio?', 400),
+    msg('emily', '...', 300),
+    msg('emily', 'Bueno, Zas esta haciendo una bienvenida oficial', 500),
+    msg('zas', 'No es una bienvenida oficial', 400),
+    msg('pat', 'Es una bienvenida oficial', 300),
+    msg('gyro', 'Bastante oficial', 300),
+    msg('juca', 'Me parece buena idea :)', 400),
+    msg('emily', 'Entonces ya esta decidido', 400),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Decidido que?' }
+  ]);
+
+  await sleep(300);
+
+  await runQueue([
+    msg('emily', 'Manana jugamos', 400),
+    msg('pat', 'Ya decidiste por todos?', 400),
+    msg('emily', 'Si', 300),
+    msg('pat', 'Increible', 300),
+    msg('pat', 'Ni siquiera me sorprende', 400),
+    msg('gyro', 'Tiene talento para eso', 400),
+    msg('emily', 'Gracias', 300),
+    msg('gyro', 'No era un cumplido', 400),
+    msg('emily', 'Lo acepto igual', 300),
+    msg('zas', 'Podemos elegir un juego manana', 500),
+    msg('zas', 'Asi todos pueden participar', 400),
+    msg('juca', 'Que juegos tienen?', 400),
+    msg('emily', 'Muchos', 300),
+    msg('pat', 'Demasiados', 300),
+    msg('gyro', 'Zas tiene una lista', 400),
+    msg('zas', 'Tengo una lista organizada', 500),
+    msg('pat', 'Claro que si', 300),
+    msg('emily', 'Ves?', 300),
+    msg('emily', 'Por eso lo queremos', 400),
+    msg('zas', 'No entiendo por que siguen diciendo eso', 500),
+    msg('juca', 'Porque es verdad :)', 400),
+    msg('gyro', 'Acostumbrate', 300),
+    msg('pat', 'No va a cambiar', 300),
+    msg('zas', 'Entendido', 400),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Me parece bien, manana jugamos entonces' },
+    { text: 'Espero no me tengan que acarrear jajaja' }
+  ]);
+
+  await sleep(400);
+
+  await runQueue([
+    msg('emily', 'Bueno', 400),
+    msg('emily', 'Creo que ya molestamos suficiente por hoy', 500),
+    msg('juca', 'Si, ya es tarde', 400),
+    msg('gyro', 'Ademas manana tenemos que demostrar que sabemos jugar minimamente bien', 600),
+    msg('pat', 'Habla por ti', 400),
+    msg('pat', 'Yo si se jugar', 400),
+    msg('emily', 'Eso dicen todos antes de perder', 500),
+    msg('pat', 'Tu no cuentas', 300),
+    msg('emily', 'Por que?', 300),
+    msg('pat', 'Porque eres insoportable cuando ganas', 500),
+    msg('emily', 'Porque gano', 400),
+    msg('gyro', 'Punto para Emily', 400),
+    msg('pat', 'Traicion', 300),
+    msg('juca', 'JAJA', 300),
+    msg('zas', 'Entonces queda acordado', 500),
+    msg('zas', 'Manana nos conectamos y jugamos', 400),
+    msg('emily', 'Si', 300),
+    msg('emily', 'Y esta vez no desaparezcas', 500),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'No prometo nada jajaja' },
+    { text: 'Ahi estare' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('juca', 'Bueno, me tengo que ir ya, ire a cenar', 600),
+    msg('juca', 'Me dio gusto conocerte :)', 500),
+    msg('gyro', 'Nos vemos manana', 400),
+    msg('gyro', gendered('Bienvenidx al servidor'), 500),
+    msg('pat', 'Si', 300),
+    msg('pat', gendered('Bienvenidx supongo'), 400),
+    msg('emily', 'Wow', 300),
+    msg('emily', 'Eso fue casi una bienvenida real', 500),
+    msg('pat', 'Callate', 300),
+    msg('zas', 'Buenas noches', 400),
+    msg('zas', 'Me alegra que hayas entrado al servidor', 500),
+    msg('zas', 'Espero verte manana de nuevo', 400),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Gracias, nos vemos manana' },
+    { text: 'Buenas noches, gracias por aceptarme' }
+  ]);
+
+  await sleep(500);
+
+  await runQueue([
+    msg('emily', 'Nos vemos', 400),
+    msg('juca', 'Descansa :)', 300),
+    msg('gyro', 'Hasta manana', 300),
+    msg('pat', 'Buenas noches', 300),
+    msg('zas', 'Hasta manana', 400),
+  ]);
+
+  await sleep(500);
+  var mc = document.getElementById('chatMessages');
+  var endDayBox = document.createElement('div');
+  endDayBox.className = 'message';
+  endDayBox.style.animation = 'fadeIn .3s ease';
+  endDayBox.innerHTML = '<div class="message-content" style="width:100%;text-align:center"><div style="display:inline-block;border:1px solid #ff69b4;padding:16px 30px;background:rgba(26,10,26,0.9);text-align:center"><div style="color:#ff69b4;font-family:\'Press Start 2P\',cursive;font-size:11px;letter-spacing:1px;margin-bottom:14px">TERMINAR DIA 1</div><button id="endDayBtn" style="background:transparent;border:1px solid #ff69b4;color:#ff69b4;font-family:\'Share Tech Mono\',monospace;font-size:13px;padding:8px 24px;cursor:pointer;transition:all 0.3s">aceptar</button></div></div>';
+  mc.appendChild(endDayBox);
+  mc.scrollTop = mc.scrollHeight;
+
+  await new Promise(function(resolve) {
+    if (daySkipTo >= 2) { resolve(); return; }
+    document.getElementById('endDayBtn').addEventListener('click', function() {
+      resolve();
+    });
+  });
+
+  document.getElementById('channelMemes').style.display = 'flex';
+  document.getElementById('channelLlamada').style.display = 'flex';
+  document.getElementById('channelLlamadaGeneral').style.display = 'flex';
+  document.getElementById('channelJuegos').style.display = 'flex';
+
+  appendSystemMsg('Fin del Dia 1');
+  if (daySkipTo < 2) await sleep(1500);
+
+  await showDayTransition(2, 'El servidor vuelve a la vida...');
+  currentDay = 2;
+  if (daySkipTo === 2) daySkipTo = 0;
+
+  document.getElementById('chatMessages').innerHTML = getChannelWelcome('chatGeneral');
+  if (daySkipTo === 3) document.getElementById('chatMessages').style.visibility = 'hidden';
+  else document.getElementById('chatMessages').style.visibility = 'visible';
+
+  await sleep(800);
+
+  await runQueue([
+    msg('juca', 'Buenos dias a todos :)', 600),
+    msg('emily', 'MORNINGGG', 400),
+    msg('pat', '...buenos dias', 500),
+    msg('gyro', 'holi', 300),
+    msg('zas', 'Buenos dias.', 400),
+    msg('emily', 'Buenos dias ' + currentUser + '!!!', 500),
+    msg('emily', gendered('Espero que estes listx para jugar hoy'), 400),
+  ]);
+
+  await runQueue([
+    msg('zas', 'Ey ' + currentUser + ', ya te di permisos del servidor', 600),
+    msg('zas', 'Asi que podes navegar entre los otros canales', 400),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Genial, gracias' },
+    { text: 'Perfecto, ya los vi' }
+  ]);
+
+  await sleep(400);
+
+  await runQueue([
+    msg('zas', 'Listo, ahora los demas pueden enviarte mensajes privados', 600),
+  ]);
+
+  document.getElementById('dmSection').style.display = 'block';
+
+  await runQueue([
+    msg('zas', 'Si algo o alguien te incomoda, dimelo', 500),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'ntp, estare bien' },
+    { text: 'gracias Zas, que lindo eres <3', onSelect: function(resolve) { C.zas.pct += 10; showHeart(); resolve(); } }
+  ]);
+
+  await sleep(400);
+
+  await runQueue([
+    msg('emily', 'mmmm', 600),
+    msg('emily', 'creo que tengo una foto de Zas, quieres ver?', 500),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'enserio? Sii' },
+    { text: 'a veeer' }
+  ]);
+
+  await sleep(400);
+
+  await runQueue([
+    { type: 'img', src: 'ilustracion_zas.png', alt: 'foto de Zas', char: 'emily' }
+  ]);
+
+  await sleep(400);
+
+  var playerChoice = await new Promise(function(resolve) {
+    skipRequested = false;
+    if (daySkipTo >= 2) { appendPlayerMsg('my type='); resolve(2); return; }
+    var container = document.getElementById('responseOptions');
+    document.getElementById('chatInputWrapper').style.display = 'none';
+    container.style.display = 'flex';
+    container.innerHTML = '';
+    var opts = [
+      { text: 'Que lindo... *se sonroja uwu*', val: 0 },
+      { text: 'Zas, siempre ha sido muy serio?', val: 1 },
+      { text: 'my type=', val: 2 }
+    ];
+    opts.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.className = 'response-btn';
+      btn.textContent = opt.text;
+      btn.addEventListener('click', function() {
+        appendPlayerMsg(opt.text);
+        hideResponses();
+        resolve(opt.val);
+      });
+      container.appendChild(btn);
+    });
+  });
+
+  if (playerChoice === 0) {
+    await runQueue([
+      msg('zas', '....', 600),
+      msg('zas', 'enserio escribiste como rol?', 500),
+      msg('emily', 'ja ja', 300),
+      msg('juca', 'Ni Zas tiene esa deficiencia social', 500),
+    ]);
+    appendImgMsg('sibueno.jpg', 'meme', 'juca');
+  } else if (playerChoice === 1) {
+    await runQueue([
+      msg('pat', 'para las fotos mas que nada, le cuesta posar', 600),
+      msg('emily', 'es un poco tieso', 400),
+    ]);
+  } else if (playerChoice === 2) {
+    C.zas.pct += 10;
+    showHeart();
+    await runQueue([
+      msg('gyro', 'Zas es guapo, hay un perfil en insta donde ciertas fans le tomaban fotos a escondidas en la universidad', 600),
+      msg('pat', 'acosadoras querras decir', 400),
+      msg('emily', 'totalmente, que les costaba hablarle sin violar su privacidad', 500),
+    ]);
+  }
+
+  await sleep(500);
+
+  await runQueue([
+    msg('zas', currentUser + ' quieres jugar?', 600),
+    msg('zas', 'hice un peque\u00f1o juego para que podamos jugar todos juntos', 500),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'que tal en otro momento?' },
+    { text: 'enserio? me encantaria Zas' },
+    { text: 'Sii, juguemos' }
+  ]);
+
+  await sleep(400);
+
+  await runQueue([
+    msg('zas', 'bien, puedes encontrar el juego en el canal #juegos de la izquierda', 600),
+  ]);
+
+  canSendMessages = true;
+
+  await sleep(1500);
+
+  var mc3 = document.getElementById('chatMessages');
+  var endDay2Box = document.createElement('div');
+  endDay2Box.className = 'message';
+  endDay2Box.style.animation = 'fadeIn .3s ease';
+  endDay2Box.innerHTML = '<div class="message-content" style="width:100%;text-align:center"><div style="display:inline-block;border:1px solid #ff69b4;padding:16px 30px;background:rgba(26,10,26,0.9);text-align:center"><div style="color:#ff69b4;font-family:\'Press Start 2P\',cursive;font-size:11px;letter-spacing:1px;margin-bottom:14px">TERMINAR DIA 2</div><button id="endDay2Btn" style="background:transparent;border:1px solid #ff69b4;color:#ff69b4;font-family:\'Share Tech Mono\',monospace;font-size:13px;padding:8px 24px;cursor:pointer;transition:all 0.3s">aceptar</button></div></div>';
+  mc3.appendChild(endDay2Box);
+  mc3.scrollTop = mc3.scrollHeight;
+
+  await new Promise(function(resolve) {
+    if (daySkipTo === 3) { resolve(); return; }
+    document.getElementById('endDay2Btn').addEventListener('click', function() {
+      resolve();
+    });
+  });
+
+  appendSystemMsg('Fin del Dia 2');
+  if (daySkipTo !== 3) await sleep(1500);
+
+  await showDayTransition(3, 'El dia empezo con un problema...');
+  currentDay = 3;
+  daySkipTo = 0;
+
+  document.getElementById('chatMessages').innerHTML = getChannelWelcome('chatGeneral');
+  document.getElementById('chatMessages').style.visibility = 'visible';
+
+  await sleep(800);
+
+  await runQueue([
+    msg('zas', 'Buen dia.', 500),
+    msg('emily', 'BUENOS DIAS!!', 400),
+    msg('pat', '...', 400),
+    msg('juca', 'Hola a todos', 400),
+    msg('gyro', 'que onda', 400),
+    msg('zas', 'Hoy tengo algo distinto', 500),
+    msg('zas', 'Hice un minijuego nuevo para el canal #juegos', 600),
+    msg('emily', 'OTRO??', 400),
+    msg('gyro', 'el anterior ni lo terminamos', 400),
+    msg('pat', 'y eso que le duró poco al ' + currentUser, 500),
+    msg('zas', 'Es de desactivar bombas', 600),
+    msg('juca', 'Yo soy malísimo con eso jaja', 500),
+    msg('zas', 'Vamos a jugarlo de a dos, en equipos', 600),
+    msg('emily', 'yo con Juca', 400),
+    msg('juca', 'trato hecho', 400),
+    msg('pat', 'yo con Zas', 400),
+    msg('zas', 'perfecto', 400),
+    msg('gyro', 'y a mi me toca...', 500),
+    msg('gyro', currentUser + ', queres ser mi duo?', 500),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Sii, seamos duo!' },
+    { text: 'no tengo opcion, no?' }
+  ]);
+
+  await sleep(400);
+
+  await runQueue([
+    msg('gyro', 'perfecto', 400),
+    msg('gyro', 'cuando quieras te llamo, es en #juegos', 600),
+    msg('zas', 'Suerte, lo vas a necesitar', 500),
+    msg('emily', 'Yo no juego eso, me da ansiedad jaja', 500),
+    msg('pat', 'Debil', 300),
+    msg('emily', 'Callate', 300),
+  ]);
+}
+
+// ===== GAME =====
+var gameRunning = false;
+var gameInterval = null;
+var gameAudioCtx = null;
+var bombGameActive = false;
+var bombTimerInterval = null;
+
+function shootSound() {
+  if (!gameAudioCtx) return;
+  try {
+    var o = gameAudioCtx.createOscillator();
+    var g = gameAudioCtx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(880, gameAudioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(110, gameAudioCtx.currentTime + 0.1);
+    g.gain.setValueAtTime(0.15, gameAudioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, gameAudioCtx.currentTime + 0.1);
+    o.connect(g);
+    g.connect(gameAudioCtx.destination);
+    o.start();
+    o.stop(gameAudioCtx.currentTime + 0.1);
+  } catch(e) {}
+}
+
+function winSound() {
+  if (!gameAudioCtx) return;
+  try {
+    var notes = [523, 659, 784, 1047];
+    notes.forEach(function(freq, i) {
+      var o = gameAudioCtx.createOscillator();
+      var g = gameAudioCtx.createGain();
+      o.type = 'square';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.15, gameAudioCtx.currentTime + i * 0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, gameAudioCtx.currentTime + i * 0.15 + 0.25);
+      o.connect(g);
+      g.connect(gameAudioCtx.destination);
+      o.start(gameAudioCtx.currentTime + i * 0.15);
+      o.stop(gameAudioCtx.currentTime + i * 0.15 + 0.25);
+    });
+  } catch(e) {}
+}
+
+function loseSound() {
+  if (!gameAudioCtx) return;
+  try {
+    var notes = [440, 370, 311, 220];
+    notes.forEach(function(freq, i) {
+      var o = gameAudioCtx.createOscillator();
+      var g = gameAudioCtx.createGain();
+      o.type = 'square';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.15, gameAudioCtx.currentTime + i * 0.2);
+      g.gain.exponentialRampToValueAtTime(0.001, gameAudioCtx.currentTime + i * 0.2 + 0.35);
+      o.connect(g);
+      g.connect(gameAudioCtx.destination);
+      o.start(gameAudioCtx.currentTime + i * 0.2);
+      o.stop(gameAudioCtx.currentTime + i * 0.2 + 0.35);
+    });
+  } catch(e) {}
+}
+
+function damageSound() {
+  if (!gameAudioCtx) return;
+  try {
+    var o = gameAudioCtx.createOscillator();
+    var g = gameAudioCtx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(200, gameAudioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(60, gameAudioCtx.currentTime + 0.2);
+    g.gain.setValueAtTime(0.2, gameAudioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, gameAudioCtx.currentTime + 0.2);
+    o.connect(g);
+    g.connect(gameAudioCtx.destination);
+    o.start();
+    o.stop(gameAudioCtx.currentTime + 0.2);
+  } catch(e) {}
+}
+
+function clipSound() {
+  if (!gameAudioCtx) return;
+  try {
+    var o = gameAudioCtx.createOscillator();
+    var g = gameAudioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = 660;
+    g.gain.setValueAtTime(0.12, gameAudioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, gameAudioCtx.currentTime + 0.08);
+    o.connect(g);
+    g.connect(gameAudioCtx.destination);
+    o.start();
+    o.stop(gameAudioCtx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+function boomSound() {
+  if (!gameAudioCtx) return;
+  try {
+    var o = gameAudioCtx.createOscillator();
+    var g = gameAudioCtx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(120, gameAudioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(40, gameAudioCtx.currentTime + 0.6);
+    g.gain.setValueAtTime(0.3, gameAudioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, gameAudioCtx.currentTime + 0.6);
+    o.connect(g);
+    g.connect(gameAudioCtx.destination);
+    o.start();
+    o.stop(gameAudioCtx.currentTime + 0.6);
+  } catch(e) {}
+}
+
+function stopGame() {
+  gameRunning = false;
+  bombGameActive = false;
+  if (bombTimerInterval) { clearInterval(bombTimerInterval); bombTimerInterval = null; }
+  var gc = document.getElementById('gameContainer');
+  if (gc) gc.style.cursor = 'default';
+  var call = document.getElementById('gyroCall');
+  if (call) call.remove();
+  var a = document.getElementById('gyroAudio');
+  if (a) { try { a.pause(); a.currentTime = 0; } catch(e) {} }
+}
+
+function startGame() {
+  var gc = document.getElementById('gameContainer');
+  if (!gc) return;
+  gc.innerHTML = '';
+  gc.style.cursor = 'none';
+
+  var score = 0;
+  var rockets = [];
+  var naves = [];
+  var explosions = [];
+  var rocketX = 50;
+  var keys = {};
+  var w = gc.offsetWidth;
+  var h = gc.offsetHeight;
+
+  var bg = document.createElement('div');
+  bg.style.cssText = 'position:absolute;width:100%;height:100%;background:url(fondojuego1.png) center/cover no-repeat';
+  gc.appendChild(bg);
+
+  var decos = ['planetarosa.png','planetamorado.png','estrella.png','estrella.png','estrella.png'];
+  var decoPositions = [{x:10,y:15,s:60},{x:75,y:10,s:50},{x:20,y:70,s:25},{x:55,y:80,s:30},{x:85,y:60,s:20}];
+  decos.forEach(function(src, i) {
+    var d = document.createElement('div');
+    d.style.cssText = 'position:absolute;left:' + decoPositions[i].x + '%;top:' + decoPositions[i].y + '%;width:' + decoPositions[i].s + 'px;pointer-events:none;opacity:0.6';
+    d.innerHTML = '<img src="' + src + '" style="width:100%">';
+    gc.appendChild(d);
+  });
+
+  var npcScores = {
+    emily: { pts: Math.floor(Math.random() * 5), color: '#ff69b4', initial: 'E' },
+    pat: { pts: Math.floor(Math.random() * 3), color: '#b0b0b0', initial: 'P' },
+    gyro: { pts: Math.floor(Math.random() * 6), color: '#9966ff', initial: 'G' },
+    juca: { pts: Math.floor(Math.random() * 4), color: '#66cc66', initial: 'J' }
+  };
+
+  var playerLives = 3;
+
+  var scoreBar = document.createElement('div');
+  scoreBar.style.cssText = 'position:absolute;bottom:0;left:0;width:100%;height:50px;background:rgba(0,0,0,0.85);border-top:1px solid #ff69b4;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:10;gap:8px';
+  scoreBar.id = 'gameScoreBar';
+  gc.appendChild(scoreBar);
+
+  function updateScoreBar() {
+    var npcHtml = '';
+    var keys2 = Object.keys(npcScores);
+    for (var i = 0; i < keys2.length; i++) {
+      var k = keys2[i];
+      var n = npcScores[k];
+      npcHtml += '<span style="display:flex;align-items:center;gap:3px;font-size:9px;color:' + n.color + '"><span style="width:14px;height:14px;border-radius:50%;background:' + n.color + ';display:flex;align-items:center;justify-content:center;font-size:7px;color:#0a0a0a;font-family:\'Press Start 2P\',cursive">' + n.initial + '</span>' + n.pts + '</span>';
+    }
+    var hearts = '';
+    for (var h = 0; h < 3; h++) {
+      hearts += h < playerLives ? '<span style="color:#ff4444;font-size:12px">&#9829;</span>' : '<span style="color:#333;font-size:12px">&#9829;</span>';
+    }
+    scoreBar.innerHTML = '<span style="font-family:\'Press Start 2P\',cursive;font-size:9px;color:#ff69b4;display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;border-radius:50%;background:#ff69b4;display:flex;align-items:center;justify-content:center;font-size:8px;color:#0a0a0a;font-family:\'Press Start 2P\',cursive">' + currentUser.charAt(0).toUpperCase() + '</span>' + score + '/10 ' + hearts + '</span>' + npcHtml;
+  }
+  updateScoreBar();
+
+  var rocketEl = document.createElement('div');
+  rocketEl.style.cssText = 'position:absolute;bottom:60px;width:50px;height:50px;transition:none;z-index:5';
+  rocketEl.innerHTML = '<img src="cohete.png" style="width:100%">';
+  gc.appendChild(rocketEl);
+
+  function spawnNave() {
+    var naveEl = document.createElement('div');
+    naveEl.style.cssText = 'position:absolute;width:46px;height:46px;z-index:4';
+    naveEl.innerHTML = '<img src="nave.png" style="width:100%">';
+    var nx = 10 + Math.random() * (w - 60);
+    naveEl.style.left = nx + 'px';
+    naveEl.style.top = '-50px';
+    gc.appendChild(naveEl);
+    naves.push({ el: naveEl, x: nx, y: -50, speed: 1 + Math.random() * 1.5 });
+  }
+
+  var gameStarted = false;
+
+  function spawnRocket() {
+    shootSound();
+    var rEl = document.createElement('div');
+    rEl.style.cssText = 'position:absolute;width:6px;height:14px;background:#ff69b4;box-shadow:0 0 8px #ff69b4;border-radius:3px;z-index:6';
+    rEl.style.left = (rocketX + 22) + 'px';
+    rEl.style.bottom = '124px';
+    gc.appendChild(rEl);
+    rockets.push({ el: rEl, x: rocketX + 22, y: h - 124 });
+  }
+
+  function spawnExplosion(x, y) {
+    var ex = document.createElement('div');
+    ex.textContent = '\u2736';
+    ex.style.cssText = 'position:absolute;font-size:30px;color:#ff69b4;text-shadow:0 0 15px #ff00ff;z-index:7;pointer-events:none;transition:all 0.4s ease';
+    ex.style.left = x + 'px';
+    ex.style.top = y + 'px';
+    gc.appendChild(ex);
+    explosions.push({ el: ex, x: x, y: y, life: 40 });
+  }
+
+  var introOverlay = document.createElement('div');
+  introOverlay.style.cssText = 'position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;cursor:pointer';
+  introOverlay.innerHTML = '<div style="font-family:\'Press Start 2P\',cursive;font-size:14px;color:#ff69b4;text-align:center;text-shadow:0 0 20px #ff69b4;line-height:2">Dispara a las naves<br>de los aliens!<br><span style="font-size:10px;color:#ff4444">3 vidas - 10 naves para ganar</span></div><div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#666">[ clic para comenzar ]</div>';
+  gc.appendChild(introOverlay);
+
+  introOverlay.addEventListener('click', function() {
+    introOverlay.remove();
+    gameStarted = true;
+    gameRunning = true;
+    try { gameAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    setTimeout(function() { spawnNave(); }, 800);
+    npcLoop();
+    gameLoop();
+  });
+
+  function npcLoop() {
+    if (!gameRunning) return;
+    var nk = Object.keys(npcScores);
+    var rk = nk[Math.floor(Math.random() * nk.length)];
+    npcScores[rk].pts++;
+    updateScoreBar();
+    setTimeout(npcLoop, 3000 + Math.random() * 4000);
+  }
+
+  function gameLoop() {
+    if (!gameRunning) return;
+
+    if (keys['ArrowLeft'] && rocketX > 0) rocketX -= 4;
+    if (keys['ArrowRight'] && rocketX < w - 50) rocketX += 4;
+    rocketEl.style.left = rocketX + 'px';
+
+    for (var i = rockets.length - 1; i >= 0; i--) {
+      rockets[i].y -= 6;
+      rockets[i].el.style.bottom = (h - rockets[i].y) + 'px';
+      if (rockets[i].y < -20) {
+        rockets[i].el.remove();
+        rockets.splice(i, 1);
+      }
+    }
+
+    for (var i = naves.length - 1; i >= 0; i--) {
+      naves[i].y += naves[i].speed;
+      naves[i].el.style.top = naves[i].y + 'px';
+      if (naves[i].y > h) {
+        naves[i].el.remove();
+        naves.splice(i, 1);
+      }
+    }
+
+    for (var i = rockets.length - 1; i >= 0; i--) {
+      for (var j = naves.length - 1; j >= 0; j--) {
+        var rx = rockets[i].x;
+        var ry = rockets[i].y;
+        var nx = naves[j].x;
+        var ny = naves[j].y;
+        if (Math.abs(rx - nx) < 35 && Math.abs(ry - ny) < 35) {
+          spawnExplosion(nx, ny);
+          naves[j].el.remove();
+          naves.splice(j, 1);
+          rockets[i].el.remove();
+          rockets.splice(i, 1);
+          score++;
+          updateScoreBar();
+          if (score >= 10) {
+            gameRunning = false;
+            winSound();
+            scoreBar.innerHTML = '<span style="font-family:\'Press Start 2P\',cursive;font-size:14px;color:#44ff44;text-shadow:0 0 15px #44ff44">GANASTE! +10% Zas</span>';
+            C.zas.pct += 10;
+            showHeart();
+            runPostGameDMs();
+            break;
+          }
+          break;
+        }
+      }
+    }
+
+    for (var i = naves.length - 1; i >= 0; i--) {
+      var rx2 = rocketX + 25;
+      var ry2 = h - 85;
+      var nx2 = naves[i].x + 23;
+      var ny2 = naves[i].y + 23;
+      if (Math.abs(rx2 - nx2) < 35 && Math.abs(ry2 - ny2) < 35) {
+        spawnExplosion(naves[i].x, naves[i].y);
+        naves[i].el.remove();
+        naves.splice(i, 1);
+        playerLives--;
+        damageSound();
+        updateScoreBar();
+        if (playerLives <= 0) {
+          gameRunning = false;
+          loseSound();
+          scoreBar.innerHTML = '<span style="font-family:\'Press Start 2P\',cursive;font-size:14px;color:#ff4444;text-shadow:0 0 15px #ff4444">PERDISTE!</span>';
+          runPostGameDMs();
+          break;
+        }
+      }
+    }
+
+    for (var i = explosions.length - 1; i >= 0; i--) {
+      explosions[i].life--;
+      explosions[i].el.style.opacity = explosions[i].life / 40;
+      explosions[i].el.style.transform = 'scale(' + (1 + (40 - explosions[i].life) * 0.05) + ')';
+      if (explosions[i].life <= 0) {
+        explosions[i].el.remove();
+        explosions.splice(i, 1);
+      }
+    }
+
+    if (gameRunning && Math.random() < 0.02) spawnNave();
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    keys[e.key] = true;
+    if (e.key === ' ' && gameRunning) {
+      e.preventDefault();
+      spawnRocket();
+    }
+  });
+  document.addEventListener('keyup', function(e) { keys[e.key] = false; });
+}
+
+function startBombGame() {
+  var gc = document.getElementById('gameContainer');
+  if (!gc) return;
+  gc.innerHTML = '';
+  gc.style.cursor = 'default';
+  if (bombTimerInterval) { clearInterval(bombTimerInterval); bombTimerInterval = null; }
+
+  var bg = document.createElement('div');
+  bg.style.cssText = 'position:absolute;width:100%;height:100%;background:url(fondobomba.jpg) center/cover no-repeat';
+  gc.appendChild(bg);
+
+  var bombState = { phase: 'wire', timer: 60, active: true, code: '707', codeInput: '', timerInterval: null, gyroAdded: false };
+  bombGameActive = true;
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;cursor:pointer';
+  overlay.innerHTML = '<div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#7744cc,#9966ff);display:flex;align-items:center;justify-content:center;font-family:\'Press Start 2P\',cursive;font-size:40px;color:#0a0a0a;position:relative;box-shadow:0 0 40px rgba(153,102,255,0.6);animation:blink 1.2s infinite"><span style="position:absolute;width:18px;height:18px;border-radius:50%;background:#44ff44;border:3px solid #0a0a0a;right:6px;bottom:6px"></span>G</div><div style="font-family:\'Press Start 2P\',cursive;font-size:16px;color:#fff;text-shadow:0 0 15px #9966ff">GYRO</div><div style="font-family:\'Share Tech Mono\',monospace;font-size:13px;color:#9966ff;letter-spacing:1px">LLAMADA ENTRANTE...</div><div style="display:flex;gap:24px;margin-top:6px"><span style="font-family:\'Press Start 2P\',cursive;font-size:18px;color:#ff4444;text-shadow:0 0 12px #ff4444">&#x2709;</span><span style="font-family:\'Press Start 2P\',cursive;font-size:18px;color:#44ff44;text-shadow:0 0 12px #44ff44">&#9742;</span></div><div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#666">[ aceptar para atender ]</div>';
+  gc.appendChild(overlay);
+  playGyroAudio();
+
+  overlay.addEventListener('click', function() {
+    stopGyroAudio();
+    overlay.remove();
+    showStartIntro();
+  });
+
+  function showStartIntro() {
+    var intro = document.createElement('div');
+    intro.style.cssText = 'position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;cursor:pointer';
+    intro.innerHTML = '<div style="font-family:\'Press Start 2P\',cursive;font-size:14px;color:#ff4444;text-align:center;text-shadow:0 0 20px #ff4444;line-height:2">Desactiva la bomba!</div><div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#666">[ clic para comenzar ]</div>';
+    gc.appendChild(intro);
+    intro.addEventListener('click', function() {
+      intro.remove();
+      addGyroCall();
+      buildBombUI();
+      startTimer();
+    });
+  }
+
+  function addGyroCall() {
+    var call = document.createElement('div');
+    call.id = 'gyroCall';
+    call.style.cssText = 'position:absolute;top:12px;right:12px;z-index:30;display:flex;align-items:center;gap:8px;background:rgba(10,5,10,0.92);border:1px solid #9966ff;border-radius:20px;padding:6px 12px 6px 6px;box-shadow:0 0 20px rgba(153,102,255,0.4);cursor:pointer';
+    call.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7744cc,#9966ff);display:flex;align-items:center;justify-content:center;font-family:\'Press Start 2P\',cursive;font-size:12px;color:#0a0a0a;position:relative">G<span style="position:absolute;width:10px;height:10px;border-radius:50%;background:#44ff44;border:2px solid #0a0a0a;right:-2px;bottom:-2px"></span></div><div style="display:flex;flex-direction:column;line-height:1.2"><span style="font-family:\'Press Start 2P\',cursive;font-size:8px;color:#9966ff">GYRO</span><span style="font-family:\'Share Tech Mono\',monospace;font-size:9px;color:#44ff44">en llamada...</span></div><span style="font-size:10px;color:#ff4444;animation:blink 1s infinite">&#9673;</span>';
+    gc.appendChild(call);
+  }
+
+  function playGyroAudio() {
+    var a = document.getElementById('gyroAudio');
+    if (!a) return;
+    try {
+      var p = a.play();
+      if (p && p.catch) p.catch(function() {});
+    } catch(e) {}
+  }
+
+  function stopGyroAudio() {
+    var a = document.getElementById('gyroAudio');
+    if (!a) return;
+    try { a.pause(); a.currentTime = 0; } catch(e) {}
+  }
+
+  function buildBombUI() {
+    var panel = document.createElement('div');
+    panel.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,94%);background:linear-gradient(180deg,#2a1010,#0d0508);border:3px solid #ff4444;border-radius:12px;box-shadow:0 0 50px rgba(255,68,68,0.6), inset 0 0 30px rgba(255,68,68,0.15);text-align:center;z-index:10;overflow:hidden';
+    panel.id = 'bombPanel';
+    gc.appendChild(panel);
+
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#ff5555,#cc2222);padding:8px 14px;cursor:move;user-select:none;touch-action:none';
+    header.innerHTML = '<span style="font-size:11px;color:#0a0a0a">&#9776;</span><span style="font-family:\'Press Start 2P\',cursive;font-size:11px;color:#0a0a0a;letter-spacing:3px">BOMBA</span><span style="font-size:11px;color:#0a0a0a">&#9776;</span>';
+    panel.appendChild(header);
+
+    var body = document.createElement('div');
+    body.style.cssText = 'display:flex;align-items:stretch;justify-content:center;gap:14px;padding:16px';
+    panel.appendChild(body);
+
+    var timerBox = document.createElement('div');
+    timerBox.style.cssText = 'flex:0 0 130px;border:2px solid #444;border-radius:8px;background:#150808;padding:12px 8px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:8px';
+    timerBox.innerHTML = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:9px;color:#888;letter-spacing:2px">TIEMPO</div>';
+    var timerEl = document.createElement('div');
+    timerEl.style.cssText = 'font-family:\'Press Start 2P\',cursive;font-size:30px;color:#ff4444;text-shadow:0 0 18px #ff4444';
+    timerEl.textContent = formatTime(bombState.timer);
+    timerEl.id = 'bombTimer';
+    timerBox.appendChild(timerEl);
+    var led = document.createElement('div');
+    led.style.cssText = 'width:18px;height:18px;border-radius:50%;background:#ff4444;box-shadow:0 0 12px #ff4444;margin:0 auto;animation:blink 1s infinite';
+    timerBox.appendChild(led);
+    body.appendChild(timerBox);
+
+    var stageBox = document.createElement('div');
+    stageBox.style.cssText = 'flex:1;min-width:200px;border:2px solid #444;border-radius:8px;background:#0c0506;padding:10px;display:flex;flex-direction:column;justify-content:center';
+    stageBox.id = 'bombStageBox';
+    var stageEl = document.createElement('div');
+    stageEl.id = 'bombStage';
+    stageBox.appendChild(stageEl);
+    body.appendChild(stageBox);
+
+    var keypadBox = document.createElement('div');
+    keypadBox.style.cssText = 'flex:0 0 150px;border:2px solid #444;border-radius:8px;background:#150808;padding:10px;text-align:center';
+    keypadBox.innerHTML = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:9px;color:#888;letter-spacing:2px;margin-bottom:6px">PANEL</div>';
+    var codeDisplay = document.createElement('div');
+    codeDisplay.style.cssText = 'font-family:\'Press Start 2P\',cursive;font-size:22px;color:#44ff44;text-shadow:0 0 10px #44ff44;letter-spacing:6px;text-align:center;background:#031507;border:2px solid #44ff44;border-radius:5px;padding:8px 4px;margin-bottom:8px';
+    codeDisplay.textContent = '___';
+    codeDisplay.id = 'bombCodeDisplay';
+    keypadBox.appendChild(codeDisplay);
+    var keypad = document.createElement('div');
+    keypad.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:5px';
+    var keys = ['1','2','3','4','5','6','7','8','9','C','0','OK'];
+    keys.forEach(function(k) {
+      var btn = document.createElement('div');
+      btn.style.cssText = 'height:30px;display:flex;align-items:center;justify-content:center;border:1px solid #ff4444;color:#ff4444;font-family:\'Press Start 2P\',cursive;font-size:10px;cursor:pointer;border-radius:4px;transition:all 0.2s;background:rgba(0,0,0,0.4)';
+      btn.textContent = k;
+      btn.onmouseover = function() { this.style.background = '#ff4444'; this.style.color = '#0a0a0a'; };
+      btn.onmouseout = function() { this.style.background = 'rgba(0,0,0,0.4)'; this.style.color = '#ff4444'; };
+      btn.addEventListener('click', function() {
+        if (!bombState.active || bombState.phase !== 'code') return;
+        handleCodeKey(k);
+      });
+      keypad.appendChild(btn);
+    });
+    keypadBox.appendChild(keypad);
+    body.appendChild(keypadBox);
+
+    makeDraggable(panel, header);
+    buildCodeStage();
+  }
+
+  function makeDraggable(panel, handle) {
+    var drag = null;
+    handle.addEventListener('mousedown', function(e) {
+      drag = { startX: e.clientX, startY: e.clientY, origLeft: panel.offsetLeft, origTop: panel.offsetTop };
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!drag) return;
+      var nx = drag.origLeft + (e.clientX - drag.startX);
+      var ny = drag.origTop + (e.clientY - drag.startY);
+      nx = Math.max(-panel.offsetWidth / 2 + 20, Math.min(gc.offsetWidth - panel.offsetWidth / 2 - 20, nx));
+      ny = Math.max(0, Math.min(gc.offsetHeight - panel.offsetHeight - 10, ny));
+      panel.style.left = nx + 'px';
+      panel.style.top = ny + 'px';
+      panel.style.transform = 'none';
+    });
+    document.addEventListener('mouseup', function() { drag = null; });
+  }
+
+  function buildWireStage() {
+    bombState.phase = 'wire';
+
+    var stage = document.getElementById('bombStage');
+    stage.innerHTML = '';
+
+    var wireColors = ['#ff4444', '#44ff44', '#4444ff', '#ffcc00'];
+    bombState.safeWire = 0;
+    bombState.wireName = 'rojo';
+
+    var label = document.createElement('div');
+    label.style.cssText = 'font-family:\'Share Tech Mono\',monospace;font-size:9px;color:#888;letter-spacing:2px;margin-bottom:8px;text-align:center';
+    label.textContent = 'CABLES';
+    stage.appendChild(label);
+
+    var wires = document.createElement('div');
+    wires.style.cssText = 'display:flex;flex-direction:row;gap:10px;justify-content:center;align-items:center;height:130px';
+
+    wireColors.forEach(function(color, i) {
+      var wire = document.createElement('div');
+      wire.style.cssText = 'width:30px;height:100%;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px';
+      var top = document.createElement('div');
+      top.style.cssText = 'width:26px;height:48%;border-radius:5px 5px 1px 1px;background:' + color + ';box-shadow:inset 0 0 8px rgba(0,0,0,0.5);transition:all 0.3s ease';
+      var bot = document.createElement('div');
+      bot.style.cssText = 'width:26px;height:48%;border-radius:1px 1px 5px 5px;background:' + color + ';box-shadow:inset 0 0 8px rgba(0,0,0,0.5);transition:all 0.3s ease';
+      wire.appendChild(top);
+      wire.appendChild(bot);
+      wire.onmouseover = function() { top.style.opacity = '0.75'; bot.style.opacity = '0.75'; };
+      wire.onmouseout = function() { top.style.opacity = '1'; bot.style.opacity = '1'; };
+      wire.addEventListener('click', function() {
+        if (!bombState.active) return;
+        if (i === bombState.safeWire) {
+          cutWire(top, bot, wire);
+          bombState.active = false;
+          clearInterval(bombTimerInterval);
+          bombTimerInterval = null;
+          clipSound();
+          setTimeout(winScreen, 700);
+        } else {
+          cutWire(top, bot, wire);
+          bombState.active = false;
+          clearInterval(bombTimerInterval);
+          bombTimerInterval = null;
+          doExplosion();
+        }
+      });
+      wires.appendChild(wire);
+    });
+
+    function cutWire(top, bot, wire) {
+      top.style.height = '46%';
+      bot.style.height = '46%';
+      top.style.marginBottom = '6px';
+      top.style.transform = 'translateX(-5px) rotate(-6deg)';
+      bot.style.transform = 'translateX(5px) rotate(6deg)';
+      top.style.filter = 'brightness(0.55) saturate(0.5)';
+      bot.style.filter = 'brightness(0.55) saturate(0.5)';
+      top.style.boxShadow = '0 0 0 transparent';
+      bot.style.boxShadow = '0 0 0 transparent';
+      var spark = document.createElement('div');
+      spark.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;color:#ffff66;text-shadow:0 0 12px #ffff66;pointer-events:none;animation:blink 0.4s 3';
+      spark.textContent = '\u26A1';
+      wire.appendChild(spark);
+      setTimeout(function() { if (spark.parentNode) spark.remove(); }, 1300);
+    }
+
+    stage.appendChild(wires);
+  }
+
+  function buildCodeStage() {
+    bombState.phase = 'code';
+    bombState.codeInput = '';
+
+    var stage = document.getElementById('bombStage');
+    stage.innerHTML = '';
+
+    var label = document.createElement('div');
+    label.style.cssText = 'font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#44ff44;letter-spacing:2px;text-align:center;margin:auto 0;line-height:1.8';
+    label.textContent = 'INGRESA EL\nCODIGO';
+    label.style.whiteSpace = 'pre-line';
+    stage.appendChild(label);
+
+    var display = document.getElementById('bombCodeDisplay');
+    if (display) {
+      display.textContent = '___';
+    }
+  }
+
+  function handleCodeKey(k) {
+    if (k === 'C') {
+      bombState.codeInput = '';
+    } else if (k === 'OK') {
+      if (bombState.codeInput === bombState.code) {
+        bombState.phase = 'wire';
+        buildWireStage();
+      } else {
+        bombState.active = false;
+        clearInterval(bombTimerInterval);
+        bombTimerInterval = null;
+        doExplosion();
+      }
+      return;
+    } else {
+      if (bombState.codeInput.length < 3) bombState.codeInput += k;
+    }
+    var display = document.getElementById('bombCodeDisplay');
+    if (display) {
+      display.textContent = bombState.codeInput + '___'.substring(bombState.codeInput.length);
+    }
+  }
+
+  function startTimer() {
+    bombTimerInterval = setInterval(function() {
+      if (!bombState.active) { clearInterval(bombTimerInterval); bombTimerInterval = null; return; }
+      bombState.timer--;
+      var t = document.getElementById('bombTimer');
+      if (t) t.textContent = formatTime(bombState.timer);
+      if (bombState.timer <= 0) {
+        bombState.active = false;
+        clearInterval(bombTimerInterval);
+        bombTimerInterval = null;
+        doExplosion();
+      }
+    }, 1000);
+  }
+
+  function formatTime(s) {
+    return '0:' + (s < 10 ? '0' : '') + s;
+  }
+
+  function doExplosion() {
+    boomSound();
+    gc.style.animation = 'none';
+    void gc.offsetWidth;
+    gc.style.animation = 'shake 0.55s ease';
+    var panel = document.getElementById('bombPanel');
+    if (panel) {
+      panel.style.animation = 'shake 0.55s ease';
+      panel.style.borderColor = '#ffffff';
+    }
+    var flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;width:100%;height:100%;top:0;left:0;background:#ffffff;z-index:15;pointer-events:none;animation:flashWhite 0.3s ease forwards';
+    gc.appendChild(flash);
+    var fire = document.createElement('div');
+    fire.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;z-index:16;pointer-events:none;display:flex;align-items:center;justify-content:center;font-size:120px;color:#ffcc00;text-shadow:0 0 40px #ff8800,0 0 80px #ff4400,0 0 120px #ff0000;animation:explosion 0.7s ease forwards';
+    fire.textContent = '\u2600';
+    gc.appendChild(fire);
+    setTimeout(loseScreen, 650);
+  }
+
+  function winScreen() {
+    winSound();
+    var panel = document.getElementById('bombPanel');
+    if (panel) panel.remove();
+    var call = document.getElementById('gyroCall');
+    if (call) call.remove();
+    stopGyroAudio();
+    showEndOverlay('DESACTIVADA', '#44ff44', 'La bomba fue desactivada. +10% Gyro', true);
+  }
+
+  function loseScreen() {
+    var panel = document.getElementById('bombPanel');
+    if (panel) panel.remove();
+    var call = document.getElementById('gyroCall');
+    if (call) call.remove();
+    stopGyroAudio();
+    showEndOverlay('EXPLOTO', '#ff4444', 'La bomba exploto. Intenta de nuevo.', false);
+  }
+
+  function showEndOverlay(text, color, sub, isWin) {
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;cursor:pointer';
+    ov.innerHTML = '<div style="font-family:\'Press Start 2P\',cursive;font-size:18px;color:' + color + ';text-align:center;text-shadow:0 0 25px ' + color + '">' + text + '</div><div style="font-family:\'Share Tech Mono\',monospace;font-size:12px;color:#ccc;text-align:center;padding:0 30px">' + sub + '</div><div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#666">[ clic para reintentar ]</div>';
+    gc.appendChild(ov);
+    ov.addEventListener('click', function() {
+      ov.remove();
+      if (isWin) {
+        if (!bombState.gyroAdded) {
+          bombState.gyroAdded = true;
+          C.gyro.pct += 10;
+          showHeart();
+        }
+        gc.style.cursor = 'default';
+        return;
+      }
+      bombState = { phase: 'wire', timer: 60, active: true, code: '707', codeInput: '', timerInterval: null };
+      addGyroCall();
+      buildBombUI();
+      startTimer();
+    });
+    if (isWin) {
+      if (!bombState.gyroAdded) {
+        bombState.gyroAdded = true;
+        C.gyro.pct += 10;
+        showHeart();
+      }
+    }
+  }
+
+  try { gameAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+}
+
+var dmRunning = false;
+var pendingDMs = {};
+
+function addNotificationBadge(channelKey) {
+  var ch = document.querySelector('.channel[data-channel="' + channelKey + '"]');
+  if (!ch || ch.querySelector('.dm-badge')) return;
+  var badge = document.createElement('span');
+  badge.className = 'dm-badge';
+  badge.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#ff4444;display:inline-block;margin-left:auto;flex-shrink:0';
+  ch.style.display = 'flex';
+  ch.appendChild(badge);
+}
+
+function removeNotificationBadge(channelKey) {
+  var ch = document.querySelector('.channel[data-channel="' + channelKey + '"]');
+  if (!ch) return;
+  var badge = ch.querySelector('.dm-badge');
+  if (badge) badge.remove();
+}
+
+function appendMsgToChannel(channelKey, charKey, text) {
+  notifSound();
+  var ch = C[charKey];
+  var color = ch ? ch.color : '#ff69b4';
+  var name = ch ? ch.name : charKey;
+  var avH = ch ? avatarHTML(ch) : '';
+  var cleanText = text.replace(/\s*\([^)]*\)\s*/g, '').trim();
+  var d = document.createElement('div');
+  d.className = 'message';
+  d.style.animation = 'fadeIn .3s ease';
+  d.innerHTML = avH + '<div class="message-content"><div class="message-header"><span class="message-author" style="color:' + color + '">' + name + '</span><span class="message-timestamp">' + getCurrentTime() + '</span></div><div class="message-text">' + cleanText + '</div></div>';
+  channelData[channelKey] += d.outerHTML;
+}
+
+function appendPlayerMsgToChannel(channelKey, text) {
+  var d = document.createElement('div');
+  d.className = 'message';
+  d.style.animation = 'fadeIn .3s ease';
+  d.innerHTML = '<div class="message-avatar" style="background:linear-gradient(135deg,#ff69b4,#ff00ff)">' + currentUser.charAt(0).toUpperCase() + '</div><div class="message-content"><div class="message-header"><span class="message-author" style="color:#ff69b4">' + currentUser + '</span><span class="message-timestamp">' + getCurrentTime() + '</span></div><div class="message-text">' + text + '</div></div>';
+  channelData[channelKey] += d.outerHTML;
+}
+
+async function playPendingDM(channelKey) {
+  var data = pendingDMs[channelKey];
+  if (!data || data.played) return;
+  data.played = true;
+  removeNotificationBadge(channelKey);
+  dmRunning = true;
+  var mc = document.getElementById('chatMessages');
+
+  for (var i = 0; i < data.messages.length; i++) {
+    appendMsgToChannel(channelKey, data.charKey, data.messages[i]);
+    mc.innerHTML = channelData[channelKey];
+    mc.scrollTop = mc.scrollHeight;
+    await sleep(600);
+  }
+
+  if (data.options) {
+    document.getElementById('chatInputWrapper').style.display = 'none';
+    var container = document.getElementById('responseOptions');
+    container.style.display = 'flex';
+    container.innerHTML = '';
+    mc.scrollTop += 200;
+    var chosen = await new Promise(function(resolve) {
+      data.options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'response-btn';
+        btn.textContent = opt.text;
+        btn.addEventListener('click', function() {
+          appendPlayerMsgToChannel(channelKey, opt.text);
+          mc.innerHTML = channelData[channelKey];
+          mc.scrollTop = mc.scrollHeight;
+          container.style.display = 'none';
+          container.innerHTML = '';
+          document.getElementById('chatInputWrapper').style.display = 'flex';
+          resolve(opt.val);
+        });
+        container.appendChild(btn);
+      });
+    });
+
+    await sleep(400);
+
+    var resp = chosen >= 0 ? data.options[0].response : data.options[1].response;
+    appendMsgToChannel(channelKey, data.charKey, resp);
+    mc.innerHTML = channelData[channelKey];
+    mc.scrollTop = mc.scrollHeight;
+
+    if (chosen >= 0) {
+      C.zas.pct += 5;
+      showHeart();
+    } else {
+      C.zas.pct = Math.max(0, C.zas.pct - 5);
+    }
+  }
+
+  delete pendingDMs[channelKey];
+  await sleep(800);
+  dmRunning = false;
+}
+
+function queueDM(channelKey, charKey, messages, options) {
+  pendingDMs[channelKey] = { charKey: charKey, messages: messages, options: options, played: false };
+  addNotificationBadge(channelKey);
+}
+
+async function runPostGameDMs() {
+  await sleep(2000);
+
+  appendSystemMsg('Tienes mensajes privados nuevos...');
+  await sleep(1000);
+
+  queueDM('dm_zas', 'zas', [
+    'Ya puedes recibir mensajes privados.',
+    '...Sí, este mensaje era completamente innecesario, pero igual quería escribirte.',
+    'Me dio curiosidad saber si sobreviviste al caos del chat general.',
+    'Por cierto... me caíste bien. No suelo decir eso tan rápido, así que considéralo un dato curioso.',
+    '❤️ (El corazón late un poco más rápido.)'
+  ], [
+    { text: 'Jaja, sobreviví gracias a ti.', val: 1, response: 'Me gusta pensar que tuve algo de mérito.' },
+    { text: 'Sí, estuvo entretenido.', val: -1, response: 'Bueno... al menos no saliste corriendo.' }
+  ]);
+
+  queueDM('dm_emily', 'emily', [
+    'Holaaa. ✨',
+    'Qué bueno que entraste hoy porque ya me estaba cansando de ver las mismas caras todos los días JAJA.',
+    'Además siento que te adaptaste súper rápido.',
+    'Oye... mañana también entra, ¿sí? No me dejes siendo la única persona normal de ese servidor.',
+    '❤️❤️ (El corazón late más rápido.)'
+  ], [
+    { text: 'Prometido, ahí voy a estar.', val: 1, response: 'Ay, ya me caes bien. 💛' },
+    { text: 'No prometo nada.', val: -1, response: 'bueno...' }
+  ]);
+
+  queueDM('dm_juca', 'juca', [
+    'Hola...',
+    'Perdón por escribirte así de repente.',
+    'Solo quería asegurarme de que no te hubieras sentido incómod@ hoy.',
+    'A veces el grupo puede ser... mucho.',
+    'Pero si algún día te sientes perdid@ o simplemente quieres hablar con alguien, puedes escribirme. De verdad no me molesta.',
+    '❤️ (El corazón late un poco más rápido.)'
+  ], [
+    { text: 'Gracias, lo voy a hacer.', val: 1, response: 'Me alegra. Entonces aquí estaré.' },
+    { text: 'Creo que estaré bien.', val: -1, response: 'Ah... bueno. Igual cualquier cosa.' }
+  ]);
+
+  queueDM('dm_pat', 'pat', [
+    'Oye.',
+    'Nomás te aviso que si Emily empieza a mandarte memes horribles, no le sigas el juego.',
+    'Y tampoco le creas todo lo que diga de mí.',
+    '...Aunque bueno.',
+    'Para ser alguien que apareció de la nada, no caes tan mal.',
+    'No te acostumbres, ¿eh?',
+    '❤️ (El corazón late un poco más rápido.)'
+  ], [
+    { text: 'Jajaja, intentaré ganarme ese cumplido.', val: 1, response: 'No lo arruines.' },
+    { text: '¿Eso era un cumplido?', val: -1, response: 'Ya sabía que lo ibas a decir.' }
+  ]);
+
+  queueDM('dm_gyro', 'gyro', [
+    'Buenas.',
+    'Estaba editando unas cosas y me acordé de ti.',
+    'Bueno... en realidad me acordé de una respuesta que diste hace rato.',
+    'Me dio risa.',
+    'No sé, tienes algo. Como que haces que den ganas de seguir la conversación.',
+    'Espero verte mañana.',
+    '❤️❤️❤️ (El corazón late con fuerza.)'
+  ], [
+    { text: 'Entonces mañana seguimos hablando.', val: 1, response: 'Me parece un buen plan.' },
+    { text: 'Fue pura suerte.', val: -1, response: 'Puede ser... aunque no estoy tan seguro.' }
+  ]);
+}
+
+// ===== INIT =====
+document.getElementById('loginBtn').addEventListener('click', function() {
+  var u = document.getElementById('usernameInput').value.trim();
+  var e = document.getElementById('loginError');
+  if (!u) {
+    e.textContent = 'ERROR: alias requerido_';
+    e.style.display = 'block';
+    return;
+  }
+  if (u.length < 2) {
+    e.textContent = 'ERROR: alias muy corto_';
+    e.style.display = 'block';
+    return;
+  }
+  e.style.display = 'none';
+  currentUser = u;
+  showScreen('pronounScreen');
+});
+
+document.getElementById('usernameInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    document.getElementById('loginBtn').click();
+  }
+});
+
+document.getElementById('pronounEl').addEventListener('click', function() {
+  playerPronoun = 'el';
+  showScreen('serverScreen');
+});
+
+document.getElementById('pronounElla').addEventListener('click', function() {
+  playerPronoun = 'ella';
+  showScreen('serverScreen');
+});
+
+document.getElementById('pronounElle').addEventListener('click', function() {
+  playerPronoun = 'elle';
+  showScreen('serverScreen');
+});
+
+document.getElementById('serverCard').addEventListener('click', function() {
+  document.getElementById('myDisplayName').textContent = currentUser;
+  document.getElementById('myAvatarLetter').textContent = currentUser.charAt(0).toUpperCase();
+  renderUsers();
+  showScreen('chatScreen');
+  document.getElementById('chatMessages').innerHTML = getChannelWelcome('chatGeneral');
+  setTimeout(function() { runDay1(); }, 800);
+});
+
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+document.getElementById('skipBtn').addEventListener('click', function() {
+  if (dialogueRunning) {
+    skipRequested = true;
+  }
+});
+
+document.getElementById('chatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') sendMessage();
+});
+
+var dmNames = {
+  dm_emily: 'Emily',
+  dm_pat: 'Pat',
+  dm_gyro: 'Gyro',
+  dm_juca: 'Juca',
+  dm_zas: 'Zas'
+};
+
+document.querySelectorAll('.channel[data-channel]').forEach(function(ch) {
+  ch.addEventListener('click', function() {
+    if (dialogueRunning || dmRunning) return;
+    document.querySelectorAll('.channel').forEach(function(c) { c.classList.remove('active'); });
+    ch.classList.add('active');
+    var name = ch.getAttribute('data-channel');
+    var headerName = dmNames[name] || name;
+    var isDm = name.startsWith('dm_');
+    document.getElementById('chatHeaderName').textContent = headerName;
+    document.getElementById('chatHeaderHash').style.display = isDm ? 'none' : '';
+    document.getElementById('chatHeaderTopic').textContent = isDm ? 'este es el inicio de la conversacion' : channelDescriptions[name] || '';
+    document.getElementById('perfilBtn').style.display = isDm ? 'inline-block' : 'none';
+    document.getElementById('perfilBtn').setAttribute('data-char', name.replace('dm_', ''));
+    switchChannel(name);
+    if (isDm && pendingDMs[name] && !pendingDMs[name].played) {
+      playPendingDM(name);
+    }
+  });
+});
+
+document.getElementById('perfilBtn').addEventListener('click', function() {
+  var charKey = this.getAttribute('data-char');
+  var ch = C[charKey];
+  if (!ch) return;
+  var grad = 'linear-gradient(135deg,' + ch.gradient[0] + ',' + ch.gradient[1] + ')';
+  var box = document.getElementById('perfilModal').querySelector('.modal-box');
+  box.style.borderColor = ch.color;
+  box.style.boxShadow = '0 0 20px ' + ch.color + '44';
+  var avatarHTML = ch.icon
+    ? '<div style="width:64px;height:64px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px;border:2px solid ' + ch.color + '"><img src="' + ch.icon + '" style="width:64px;height:64px;object-fit:cover"></div>'
+    : '<div style="width:64px;height:64px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:\'Press Start 2P\',cursive;font-size:22px;color:#0a0a0a;background:' + grad + '">' + ch.initial + '</div>';
+  document.getElementById('perfilContent').innerHTML = avatarHTML +
+    '<div style="font-family:\'Press Start 2P\',cursive;font-size:14px;color:' + ch.color + ';margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:8px">' + ch.name + ' <span style="font-size:10px;color:#999">' + ch.pct + '%</span></div>' +
+    '<div style="width:80%;margin:0 auto 12px;height:6px;background:#1a0a1a;border:1px solid ' + ch.color + '44;border-radius:3px;overflow:hidden"><div style="width:' + ch.pct + '%;height:100%;background:' + ch.color + ';border-radius:3px"></div></div>' +
+    (ch.role ? '<div style="font-size:10px;color:' + ch.roleColor + ';border:1px solid ' + ch.roleColor + ';display:inline-block;padding:2px 8px;margin-bottom:10px">' + ch.role + '</div>' : '<div style="margin-bottom:10px"></div>') +
+    '<div style="border-top:1px solid ' + ch.color + '44;padding-top:12px;text-align:left;font-size:12px;color:#999;line-height:2">' +
+    '<div><span style="color:#666">Edad:</span> <span style="color:' + ch.color + '">' + ch.age + '</span></div>' +
+    '<div><span style="color:#666">Color fav:</span> <span style="color:' + ch.favColor + '">' + ch.favColor + '</span></div>' +
+    '<div><span style="color:#666">Juegos:</span> <span style="color:' + ch.color + '">' + ch.games + '</span></div>' +
+    '<div><span style="color:#666">Estado:</span> <span style="color:#44ff44">&#9679; ' + ch.status + '</span></div>' +
+    '</div>';
+  document.getElementById('perfilModal').classList.add('active');
+});
+
+document.getElementById('perfilClose').addEventListener('click', function() {
+  document.getElementById('perfilModal').classList.remove('active');
+});
+
+document.getElementById('perfilModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('active');
+});
+
+document.addEventListener('click', function(e) {
+  var img = e.target;
+  if (img.nodeName === 'IMG' && img.closest('.chat-img-message')) {
+    document.getElementById('imgLightboxSrc').src = img.src;
+    document.getElementById('imgLightbox').classList.add('active');
+  }
+  if (e.target.id === 'imgLightboxClose' || e.target.id === 'imgLightbox') {
+    document.getElementById('imgLightbox').classList.remove('active');
+  }
+});
+
+var daySkipTo = 0;
+
+document.getElementById('diasBtn').addEventListener('click', function() {
+  document.getElementById('diasModal').classList.add('active');
+});
+
+document.getElementById('diasClose').addEventListener('click', function() {
+  document.getElementById('diasModal').classList.remove('active');
+});
+
+document.getElementById('diasModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('active');
+});
+
+function launchDay(day) {
+  document.getElementById('diasModal').classList.remove('active');
+  var u = document.getElementById('usernameInput').value.trim();
+  if (!u || u.length < 2) {
+    document.getElementById('usernameInput').value = 'player';
+    u = 'player';
+  }
+  currentUser = u;
+  if (!playerPronoun || playerPronoun === '') playerPronoun = 'el';
+  document.getElementById('myDisplayName').textContent = currentUser;
+  document.getElementById('myAvatarLetter').textContent = currentUser.charAt(0).toUpperCase();
+  renderUsers();
+  showScreen('chatScreen');
+
+  if (day === 1) {
+    document.getElementById('chatMessages').innerHTML = getChannelWelcome('chatGeneral');
+    setTimeout(function() { runDay1(); }, 800);
+  } else if (day === 2) {
+    daySkipTo = 2;
+    document.getElementById('chatMessages').innerHTML = getChannelWelcome('chatGeneral');
+    document.getElementById('chatMessages').style.visibility = 'hidden';
+    setTimeout(function() { runDay1(); }, 400);
+  } else if (day === 3) {
+    daySkipTo = 3;
+    document.getElementById('chatMessages').innerHTML = getChannelWelcome('chatGeneral');
+    document.getElementById('chatMessages').style.visibility = 'hidden';
+    setTimeout(function() { runDay1(); }, 400);
+  }
+}
+
+document.getElementById('diasDay1').addEventListener('click', function() { launchDay(1); });
+document.getElementById('diasDay2').addEventListener('click', function() { launchDay(2); });
+document.getElementById('diasDay3').addEventListener('click', function() { launchDay(3); });
+
+</script>
+</body>
+</html>
