@@ -723,7 +723,7 @@
       <input type="text" id="usernameInput" placeholder="&gt; ingresa tu alias..." maxlength="20" autocomplete="off">
       <div class="error-msg" id="loginError"></div>
       <button id="loginBtn" type="button" class="login-btn">[ CONECTAR ]</button>
-      <div style="text-align:center;margin-top:12px"><button id="diasBtn" type="button" style="background:transparent;border:1px solid #444;color:#444;font-family:'Press Start 2P',cursive;font-size:8px;padding:6px 14px;cursor:pointer;transition:all 0.3s">DIAS</button></div>
+      <div style="text-align:center;margin-top:12px;display:flex;gap:10px;justify-content:center"><button id="continueBtn" type="button" style="background:transparent;border:1px solid #44ff44;color:#44ff44;font-family:'Press Start 2P',cursive;font-size:8px;padding:6px 14px;cursor:pointer;transition:all 0.3s">CONTINUAR</button><button id="diasBtn" type="button" style="background:transparent;border:1px solid #444;color:#444;font-family:'Press Start 2P',cursive;font-size:8px;padding:6px 14px;cursor:pointer;transition:all 0.3s">DIAS</button></div>
     </div>
     <div style="margin-top:30px;font-size:10px;color:#333;font-family:'Press Start 2P',cursive">v2.0.77</div>
   </div>
@@ -992,9 +992,42 @@ function loadGameData() {
   document.getElementById('myDisplayName').textContent = currentUser;
   document.getElementById('myAvatarLetter').textContent = currentUser.charAt(0).toUpperCase();
   renderUsers();
-  var ch = data.currentChannel && channelData[data.currentChannel] !== undefined ? data.currentChannel : 'chatGeneral';
-  currentChannel = 'chatGeneral';
-  switchChannel(ch);
+
+  var unlocked = currentDay >= 2;
+  document.getElementById('channelMemes').style.display = unlocked ? 'flex' : 'none';
+  document.getElementById('channelLlamada').style.display = unlocked ? 'flex' : 'none';
+  document.getElementById('channelLlamadaGeneral').style.display = unlocked ? 'flex' : 'none';
+  document.getElementById('channelJuegos').style.display = unlocked ? 'flex' : 'none';
+  document.getElementById('dmSection').style.display = unlocked ? 'block' : 'none';
+
+  showScreen('chatScreen');
+
+  var ch = data.currentChannel;
+  if (!ch || ch === 'juegos' || channelData[ch] === undefined) ch = 'chatGeneral';
+  currentChannel = ch;
+
+  document.querySelectorAll('.channel').forEach(function(c) {
+    c.classList.toggle('active', c.getAttribute('data-channel') === ch);
+  });
+
+  var headerName = dmNames[ch] || ch;
+  var isDm = ch.indexOf('dm_') === 0;
+  document.getElementById('chatHeaderName').textContent = headerName;
+  document.getElementById('chatHeaderHash').style.display = isDm ? 'none' : '';
+  document.getElementById('chatHeaderTopic').textContent = isDm ? 'este es el inicio de la conversacion' : channelDescriptions[ch] || '';
+  document.getElementById('perfilBtn').style.display = isDm ? 'inline-block' : 'none';
+  document.getElementById('perfilBtn').setAttribute('data-char', ch.replace('dm_', ''));
+
+  var mc = document.getElementById('chatMessages');
+  mc.innerHTML = channelData[ch] || getChannelWelcome(ch);
+  mc.scrollTop = mc.scrollHeight;
+  mc.style.visibility = 'visible';
+  mc.style.position = '';
+  mc.style.padding = '';
+  document.querySelector('.chat-input-area').style.display = '';
+  document.getElementById('typingIndicator').style.display = '';
+  document.getElementById('responseOptions').style.display = 'none';
+  document.getElementById('chatInputWrapper').style.display = 'flex';
   return true;
 }
 
@@ -1002,6 +1035,7 @@ document.getElementById('saveGameBtn').addEventListener('click', function() {
   var st = document.getElementById('saveGameStatus');
   if (saveGameData()) {
     st.textContent = '> Partida guardada';
+    refreshContinueBtn();
   } else {
     st.textContent = '> Error al guardar';
   }
@@ -2896,6 +2930,26 @@ document.getElementById('loginBtn').addEventListener('click', function() {
   e.style.display = 'none';
   currentUser = u;
   showScreen('pronounScreen');
+});
+
+function hasSavedGame() {
+  try { return !!localStorage.getItem('cronicamente_save'); } catch(e) { return false; }
+}
+
+function refreshContinueBtn() {
+  document.getElementById('continueBtn').style.display = hasSavedGame() ? 'inline-block' : 'none';
+}
+
+refreshContinueBtn();
+
+document.getElementById('continueBtn').addEventListener('click', function() {
+  if (loadGameData()) {
+    if (musicPlaying === false) startMusic();
+    return;
+  }
+  var e = document.getElementById('loginError');
+  e.textContent = 'ERROR: no hay partida guardada_';
+  e.style.display = 'block';
 });
 
 document.getElementById('usernameInput').addEventListener('keydown', function(e) {
