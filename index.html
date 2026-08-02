@@ -708,7 +708,8 @@
 </audio>
 
 <div id="musicToggle" title="Musica ON/OFF" style="position:fixed;bottom:20px;right:20px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ff69b4">&#9835;</div>
-<div id="skipBtn" title="Saltar dialogue" style="position:fixed;bottom:20px;right:70px;z-index:10001;cursor:pointer;padding:10px 14px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4">saltar</div>
+<div id="settingsBtn" title="Configuracion" style="position:fixed;bottom:20px;right:70px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ff69b4">&#9881;</div>
+<div id="skipBtn" title="Saltar dialogue" style="position:fixed;bottom:20px;right:120px;z-index:10001;cursor:pointer;padding:10px 14px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4">saltar</div>
 
 <div class="scanline-overlay"></div>
 
@@ -846,6 +847,31 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="configModal">
+  <div class="modal-box" style="min-width:340px;max-width:380px;border-color:#ff69b4">
+    <h2 style="color:#ff69b4">[ CONFIGURACION ]</h2>
+    <div style="text-align:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4;margin-bottom:20px">MUSICA</div>
+    <div style="display:flex;flex-direction:column;gap:20px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#ccc">
+      <div>
+        <div style="margin-bottom:8px;color:#ddd">Volumen de la musica</div>
+        <input type="range" id="musicVolumeSlider" min="0" max="100" value="30" style="width:100%;accent-color:#ff69b4;cursor:pointer">
+        <div id="musicVolumeLabel" style="margin-top:4px;font-size:11px;color:#888">30%</div>
+      </div>
+      <div style="border-top:1px solid #2a2a2a;padding-top:20px">
+        <div style="margin-bottom:8px;color:#ddd">Guardar partida</div>
+        <div style="display:flex;gap:10px">
+          <button type="button" class="modal-btn" id="saveGameBtn" style="border-color:#ff69b4;color:#ff69b4;flex:1">GUARDAR</button>
+          <button type="button" class="modal-btn" id="loadGameBtn" style="border-color:#ff69b4;color:#ff69b4;flex:1">CARGAR</button>
+        </div>
+        <div id="saveGameStatus" style="margin-top:8px;font-size:11px;color:#44ff44;min-height:14px"></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:20px">
+      <button type="button" class="modal-btn modal-btn-no" id="configClose">CERRAR</button>
+    </div>
+  </div>
+</div>
+
 <div id="imgLightbox">
   <div id="imgLightboxClose">&times;</div>
   <img id="imgLightboxSrc" src="">
@@ -886,6 +912,109 @@ musicToggle.addEventListener('click', function() {
 document.addEventListener('click', function() {
   if (!musicPlaying) startMusic();
 }, { once: true });
+
+// ===== CONFIGURACION =====
+var settingsBtn = document.getElementById('settingsBtn');
+var configModal = document.getElementById('configModal');
+var musicVolumeSlider = document.getElementById('musicVolumeSlider');
+var musicVolumeLabel = document.getElementById('musicVolumeLabel');
+
+var savedMusicVolume = 30;
+try {
+  var sv = localStorage.getItem('cronicamente_volume');
+  if (sv !== null) savedMusicVolume = parseInt(sv, 10);
+} catch(e) {}
+if (isNaN(savedMusicVolume)) savedMusicVolume = 30;
+if (savedMusicVolume < 0) savedMusicVolume = 0;
+if (savedMusicVolume > 100) savedMusicVolume = 100;
+musicVolumeSlider.value = savedMusicVolume;
+musicVolumeLabel.textContent = savedMusicVolume + '%';
+
+function applyMusicVolume() {
+  var v = parseInt(musicVolumeSlider.value, 10);
+  bgMusic.volume = v / 100;
+  musicVolumeLabel.textContent = v + '%';
+  try { localStorage.setItem('cronicamente_volume', String(v)); } catch(e) {}
+}
+
+musicVolumeSlider.addEventListener('input', applyMusicVolume);
+
+settingsBtn.addEventListener('click', function() {
+  configModal.classList.add('active');
+  var st = document.getElementById('saveGameStatus');
+  if (st) st.textContent = '';
+});
+
+document.getElementById('configClose').addEventListener('click', function() {
+  configModal.classList.remove('active');
+});
+
+configModal.addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('active');
+});
+
+function saveGameData() {
+  saveCurrentChannel();
+  var data = {
+    currentUser: currentUser,
+    playerPronoun: playerPronoun,
+    currentDay: currentDay,
+    currentChannel: currentChannel,
+    channelData: channelData,
+    pct: {}
+  };
+  Object.keys(C).forEach(function(k) {
+    data.pct[k] = C[k].pct;
+  });
+  try {
+    localStorage.setItem('cronicamente_save', JSON.stringify(data));
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+function loadGameData() {
+  var raw = null;
+  try { raw = localStorage.getItem('cronicamente_save'); } catch(e) {}
+  if (!raw) return false;
+  var data;
+  try { data = JSON.parse(raw); } catch(e) { return false; }
+  currentUser = data.currentUser || 'player';
+  playerPronoun = data.playerPronoun || 'el';
+  currentDay = data.currentDay || 1;
+  if (data.pct) {
+    Object.keys(data.pct).forEach(function(k) {
+      if (C[k]) C[k].pct = data.pct[k];
+    });
+  }
+  if (data.channelData) channelData = data.channelData;
+  document.getElementById('myDisplayName').textContent = currentUser;
+  document.getElementById('myAvatarLetter').textContent = currentUser.charAt(0).toUpperCase();
+  renderUsers();
+  var ch = data.currentChannel && channelData[data.currentChannel] !== undefined ? data.currentChannel : 'chatGeneral';
+  currentChannel = 'chatGeneral';
+  switchChannel(ch);
+  return true;
+}
+
+document.getElementById('saveGameBtn').addEventListener('click', function() {
+  var st = document.getElementById('saveGameStatus');
+  if (saveGameData()) {
+    st.textContent = '> Partida guardada';
+  } else {
+    st.textContent = '> Error al guardar';
+  }
+});
+
+document.getElementById('loadGameBtn').addEventListener('click', function() {
+  var st = document.getElementById('saveGameStatus');
+  if (loadGameData()) {
+    configModal.classList.remove('active');
+  } else {
+    st.textContent = '> No hay partida guardada';
+  }
+});
 
 var C = {
   emily: { name: 'Emily', color: '#ff69b4', gradient: ['#ff69b4','#ff1493'], initial: 'E', icon: 'Emilyicon.png', role: null, roleColor: null, age: 22, favColor: '#ff69b4', games: 'Valorant, League of Legends', status: 'conectado', pct: 20 },
@@ -1961,6 +2090,22 @@ function stopGame() {
   if (a) { try { a.pause(); a.currentTime = 0; } catch(e) {} }
 }
 
+async function runPostBombChat() {
+  switchChannel('chatGeneral');
+  await sleep(900);
+  await runQueue([
+    msg('emily', 'WOOO LO LOGRASTE!!', 400),
+    msg('gyro', 'NO PUEDO CREER QUE LA DESACTIVARON', 500),
+    msg('juca', 'estuvimos a nada de explotar', 400),
+    msg('zas', 'buena jugada', 400),
+    msg('pat', 'se filtraron estas fotos de Gyro', 600),
+    msg('pat', '<a href="https://youtu.be/oHg5SJYRHA0?si=SqsOmoLJslmpyQem" target="_blank" rel="noopener noreferrer" style="color:#44ff44;text-decoration:underline;cursor:pointer">fotos de gyro</a>', 400),
+    msg('gyro', 'NO MIREN ESO', 300),
+    msg('emily', 'jajajajaja', 300),
+    msg('juca', 'ya es tarde', 300),
+  ]);
+}
+
 function startGame() {
   var gc = document.getElementById('gameContainer');
   if (!gc) return;
@@ -2511,6 +2656,7 @@ function startBombGame() {
           showHeart();
         }
         gc.style.cursor = 'default';
+        runPostBombChat();
         return;
       }
       bombState = { phase: 'wire', timer: 60, active: true, code: '707', codeInput: '', timerInterval: null };
