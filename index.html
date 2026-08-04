@@ -1137,7 +1137,7 @@ var C = {
   emily: { name: 'Emily', color: '#ff69b4', gradient: ['#ff69b4','#ff1493'], initial: 'E', icon: 'Emilyicon.png', role: null, roleColor: null, age: 22, favColor: '#ff69b4', games: 'Valorant, League of Legends', status: 'conectado', pct: 20 },
   pat: { name: 'Pat', color: '#b0b0b0', gradient: ['#808080','#b0b0b0'], initial: 'P', icon: 'Paticon.png', role: null, roleColor: null, age: 24, favColor: '#808080', games: 'Counter Strike, Dota 2', status: 'conectado', pct: 20 },
   gyro: { name: 'Gyro', color: '#9966ff', gradient: ['#7744cc','#9966ff'], initial: 'G', icon: null, role: 'streamer', roleColor: '#9966ff', age: 27, favColor: '#9966ff', games: 'Minecraft, Fortnite', status: 'conectado', pct: 20 },
-  juca: { name: 'Juca', color: '#66cc66', gradient: ['#44aa44','#66cc66'], initial: 'J', icon: null, role: null, roleColor: null, age: 21, favColor: '#66cc66', games: 'Stardew Valley, Terraria', status: 'conectado', pct: 20 },
+  juca: { name: 'Juca', color: '#66cc66', gradient: ['#44aa44','#66cc66'], initial: 'J', icon: 'jucaicono.png', role: null, roleColor: null, age: 21, favColor: '#66cc66', games: 'Stardew Valley, Terraria', status: 'conectado', pct: 20 },
   zas: { name: 'Zas', color: '#ff4444', gradient: ['#cc2222','#ff4444'], initial: 'Z', icon: 'Zasicon.png', role: 'creador', roleColor: '#ff4444', age: 26, favColor: '#ff4444', games: 'Dark Souls, Elden Ring', status: 'conectado', pct: 20 }
 };
 
@@ -1301,10 +1301,24 @@ function hideResponses() {
   document.getElementById('chatInputWrapper').style.display = 'flex';
 }
 
-function showHeart() {
+var heartImgs = {
+  zas: 'coraZas.png',
+  gyro: 'CoraGyro.png',
+  pat: 'coraPat.png',
+  emily: 'coraEmily.png',
+  juca: 'CoraJuca.png'
+};
+
+function showHeart(charKey) {
   var h = document.createElement('div');
-  h.textContent = '\u2665';
-  h.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;color:#ff1493;z-index:10000;pointer-events:none;animation:heartbeat 1s ease forwards;text-shadow:0 0 20px #ff69b4,0 0 40px #ff69b4';
+  h.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;pointer-events:none;animation:heartbeat 1s ease forwards';
+  var src = charKey ? heartImgs[charKey] : null;
+  if (src) {
+    h.innerHTML = '<img src="' + src + '" style="width:90px;height:90px;object-fit:contain">';
+  } else {
+    h.textContent = '\u2665';
+    h.style.cssText += ';font-size:48px;color:#ff1493;text-shadow:0 0 20px #ff69b4,0 0 40px #ff69b4';
+  }
   document.body.appendChild(h);
   setTimeout(function() { h.remove(); }, 1100);
 }
@@ -1890,129 +1904,308 @@ async function runDay1() {
 
   await sleep(800);
 
-  await runQueue([
-    msg('juca', 'Buenos dias a todos :)', 600),
-    msg('emily', 'MORNINGGG', 400),
-    msg('pat', '...buenos dias', 500),
-    msg('gyro', 'holi', 300),
-    msg('zas', 'Buenos dias.', 400),
-    msg('emily', 'Buenos dias ' + currentUser + '!!!', 500),
-    msg('emily', gendered('Espero que estes listx para jugar hoy'), 400),
-  ]);
+  var nuevaTerm = playerPronoun === 'el' ? 'el nuevo' : (playerPronoun === 'ella' ? 'la nueva' : 'lx nuevx');
 
   await runQueue([
-    msg('zas', 'Ey ' + currentUser + ', ya te di permisos del servidor', 600),
-    msg('zas', 'Asi que podes navegar entre los otros canales', 400),
+    msg('zas', 'Buenas.', 400),
+    msg('zas', 'Acabo de actualizar los permisos del servidor.', 600),
+    msg('emily', 'AL FIN.', 400),
+    msg('gyro', 'sobrevivió el servidor?', 500),
+    msg('zas', 'Sí.', 300),
+    msg('zas', 'Contra todo pronóstico.', 600),
+    msg('pat', 'Qué decepción.', 400),
+    msg('juca', 'Buenas noches.', 500),
+    msg('zas', 'Ya deberías poder ver los demás canales.', 600),
+    msg('zas', 'Ayer prácticamente te dejé ' + gendered('encerradx') + ' en general.', 700),
+    msg('zas', 'Me daba un poco de cosa que no tuvieras mucho que explorar.', 700),
+    msg('zas', 'Ahora ya puedes entrar a la categoría de juegos y comunidad.', 700),
   ]);
 
+  var permChoice = 0;
   await showAndWaitForResponse([
-    { text: 'Genial, gracias' },
-    { text: 'Perfecto, ya los vi' }
+    { text: 'Gracias, debió tomarte un buen rato Zas.', onSelect: function(resolve) { permChoice = 0; C.zas.pct += 10; showHeart('zas'); resolve(); } },
+    { text: 'Ya los vi, gracias.', onSelect: function(resolve) { permChoice = 1; resolve(); } },
+    { text: '¿Tanto trabajo por unos canales?', onSelect: function(resolve) { permChoice = 2; C.zas.pct = Math.max(0, C.zas.pct - 10); resolve(); } }
   ]);
 
-  await sleep(400);
-
-  await runQueue([
-    msg('zas', 'Listo, ahora los demas pueden enviarte mensajes privados', 600),
-  ]);
-
-  document.getElementById('dmSection').style.display = 'block';
-
-  await runQueue([
-    msg('zas', 'Si algo o alguien te incomoda, dimelo', 500),
-  ]);
-
-  await showAndWaitForResponse([
-    { text: 'ntp, estare bien' },
-    { text: 'gracias Zas, que lindo eres <3', onSelect: function(resolve) { C.zas.pct += 10; showHeart(); resolve(); } }
-  ]);
-
-  await sleep(400);
-
-  await runQueue([
-    msg('emily', 'mmmm', 600),
-    msg('emily', 'creo que tengo una foto de Zas, quieres ver?', 500),
-  ]);
-
-  await showAndWaitForResponse([
-    { text: 'enserio? Sii' },
-    { text: 'a veeer' }
-  ]);
-
-  await sleep(400);
-
-  await runQueue([
-    { type: 'img', src: 'ilustracion_zas.png', alt: 'foto de Zas', char: 'emily' }
-  ]);
-
-  await sleep(400);
-
-  var playerChoice = await new Promise(function(resolve) {
-    skipRequested = false;
-    if (daySkipTo >= 2) { appendPlayerMsg('my type='); resolve(2); return; }
-    var container = document.getElementById('responseOptions');
-    document.getElementById('chatInputWrapper').style.display = 'none';
-    container.style.display = 'flex';
-    container.innerHTML = '';
-    var opts = [
-      { text: 'Que lindo... *se sonroja uwu*', val: 0 },
-      { text: 'Zas, siempre ha sido muy serio?', val: 1 },
-      { text: 'my type=', val: 2 }
-    ];
-    opts.forEach(function(opt) {
-      var btn = document.createElement('button');
-      btn.className = 'response-btn';
-      btn.textContent = opt.text;
-      btn.addEventListener('click', function() {
-        appendPlayerMsg(opt.text);
-        hideResponses();
-        resolve(opt.val);
-      });
-      container.appendChild(btn);
-    });
-  });
-
-  if (playerChoice === 0) {
+  if (permChoice === 0) {
     await runQueue([
-      msg('zas', '....', 600),
-      msg('zas', 'enserio escribiste como rol?', 500),
-      msg('emily', 'ja ja', 300),
-      msg('juca', 'Ni Zas tiene esa deficiencia social', 500),
+      msg('zas', 'Más del que me gustaría admitir.', 600),
+      msg('gyro', 'JAJAJA.', 400),
+      msg('gyro', 'sabía que iba a decir eso.', 600),
+      msg('emily', '¿CUÁNTO?', 400),
+      msg('zas', 'No quieres saber.', 500),
     ]);
-    appendImgMsg('sibueno.jpg', 'meme', 'juca');
-  } else if (playerChoice === 1) {
+  } else if (permChoice === 1) {
     await runQueue([
-      msg('pat', 'para las fotos mas que nada, le cuesta posar', 600),
-      msg('emily', 'es un poco tieso', 400),
+      msg('zas', 'Perfecto.', 400),
+      msg('zas', 'Si algo no funciona me dices.', 600),
     ]);
-  } else if (playerChoice === 2) {
-    C.zas.pct += 10;
-    showHeart();
+  } else {
     await runQueue([
-      msg('gyro', 'Zas es guapo, hay un perfil en insta donde ciertas fans le tomaban fotos a escondidas en la universidad', 600),
-      msg('pat', 'acosadoras querras decir', 400),
-      msg('emily', 'totalmente, que les costaba hablarle sin violar su privacidad', 500),
+      msg('zas', 'Podría haber tardado cinco minutos.', 500),
+      msg('zas', 'Preferí hacerlo bien.', 600),
+      msg('gyro', 'ouch.', 400),
     ]);
   }
 
   await sleep(500);
 
   await runQueue([
-    msg('zas', currentUser + ' quieres jugar?', 600),
-    msg('zas', 'hice un peque\u00f1o juego para que podamos jugar todos juntos', 500),
-  ]);
-
-  await showAndWaitForResponse([
-    { text: 'que tal en otro momento?' },
-    { text: 'enserio? me encantaria Zas' },
-    { text: 'Sii, juguemos' }
+    msg('emily', 'Ahora sí podemos corromper... digo...', 700),
+    msg('emily', 'integrar oficialmente a alguien nuevo.', 500),
+    msg('pat', 'Qué pésima elección de palabras.', 600),
+    msg('emily', 'No dije nada malo.', 400),
+    msg('gyro', 'Eso es lo preocupante.', 500),
   ]);
 
   await sleep(400);
 
+  var typer = document.getElementById('typingIndicator');
+  typer.innerHTML = currentUser + ' esta escribiendo <span class="typing-dots"><span></span><span></span><span></span></span>';
+  await sleep(1500);
+  typer.innerHTML = '';
+
   await runQueue([
-    msg('zas', 'bien, puedes encontrar el juego en el canal #juegos de la izquierda', 600),
+    msg('emily', 'Ya ' + gendered('lx') + ' espantaron.', 500),
+    msg('juca', 'Denle dos minutos.', 500),
   ]);
+
+  await sleep(300);
+  appendPlayerMsg('Jajaja.');
+
+  await runQueue([
+    msg('gyro', 'ok.', 300),
+    msg('gyro', 'ríe.', 300),
+    msg('gyro', 'vamos bien.', 500),
+    msg('pat', 'No le hagas caso a Gyro.', 500),
+    msg('gyro', '¿Y por qué siempre soy yo?', 500),
+    msg('emily', 'Porque eres el más fácil de molestar.', 500),
+    msg('gyro', 'Falso.', 300),
+    msg('gyro', 'Pat existe.', 400),
+    msg('pat', 'Inténtalo.', 400),
+    msg('zas', 'Antes de que esto se salga más de control...', 700),
+    msg('zas', 'Hay otra cosa.', 500),
+    msg('zas', 'También activé los mensajes privados.', 600),
+    msg('zas', 'Ya pueden hablar directamente entre ustedes.', 600),
+    msg('zas', 'Aunque...', 400),
+    msg('zas', 'Si prefieres ir poco a poco también está bien.', 700),
+    msg('zas', 'No hay prisa por hablar con todos.', 600),
+  ]);
+
+  document.getElementById('dmSection').style.display = 'block';
+
+  await sleep(400);
+
+  var dmChoice = 0;
+  await showAndWaitForResponse([
+    { text: 'muchas gracias, respondere a mi ritmo <3.', onSelect: function(resolve) { dmChoice = 0; C.zas.pct += 10; showHeart('zas'); resolve(); } },
+    { text: 'Perfecto.', onSelect: function(resolve) { dmChoice = 1; resolve(); } },
+    { text: 'Espero que nadie spamee, en particular cierta chica.', onSelect: function(resolve) { dmChoice = 2; C.emily.pct = Math.max(0, C.emily.pct - 10); resolve(); } }
+  ]);
+
+  if (dmChoice === 0) {
+    await runQueue([
+      msg('zas', 'Conociéndolos...', 500),
+      msg('zas', 'No te asustes si alguno spamea', 600),
+      msg('zas', 'No lo hacen de mala fe.', 600),
+    ]);
+  } else if (dmChoice === 1) {
+    await runQueue([
+      msg('zas', 'Bien.', 300),
+      msg('zas', 'cuidado con el spam', 500),
+    ]);
+  } else {
+    await runQueue([
+      msg('emily', '???', 400),
+      msg('emily', 'Oye.', 300),
+      msg('emily', 'Ni te he escrito.', 500),
+      msg('gyro', 'todavía.', 400),
+      msg('emily', 'TODAVÍA.', 500),
+    ]);
+  }
+
+  await sleep(500);
+  appendPlayerMsg('¿Tan mala fama tienen?');
+
+  await runQueue([
+    msg('gyro', 'Emily sí.', 400),
+    msg('emily', '???', 300),
+    msg('pat', 'Si', 300),
+    msg('emily', 'Traidores.', 500),
+    msg('juca', 'No les hagas mucho caso.', 500),
+    msg('juca', 'Somos menos raros de lo que parecemos.', 600),
+    msg('gyro', 'Habla por ti.', 400),
+    msg('zas', 'Y una cosa más.', 500),
+    msg('zas', 'Si alguien te hace sentir ' + gendered('incómodx') + '...', 700),
+    msg('zas', 'Aunque sea por algo pequeño...', 600),
+    msg('zas', 'Me dices, ¿sí?', 500),
+    msg('zas', 'Prefiero revisarlo a que te quedes pensando que estabas exagerando.', 800),
+  ]);
+
+  await sleep(400);
+
+  var confortChoice = 0;
+  await showAndWaitForResponse([
+    { text: 'Que lindo, muchas gracias <3.', onSelect: function(resolve) { confortChoice = 0; C.zas.pct += 10; showHeart('zas'); resolve(); } },
+    { text: 'Está bien.', onSelect: function(resolve) { confortChoice = 1; resolve(); } },
+    { text: 'Puedo defenderme sola.', onSelect: function(resolve) { confortChoice = 2; C.zas.pct = Math.max(0, C.zas.pct - 10); resolve(); } }
+  ]);
+
+  if (confortChoice === 0) {
+    await runQueue([
+      msg('zas', 'no es problema y…', 500),
+      msg('zas', 'No es porque crea que no puedas.', 600),
+      msg('zas', 'Solo prefiero asegurarme.', 600),
+    ]);
+  } else if (confortChoice === 1) {
+    await runQueue([
+      msg('zas', 'Gracias.', 500),
+    ]);
+  } else {
+    await runQueue([
+      msg('zas', 'No lo dudo.', 400),
+      msg('zas', 'No iba por ahí.', 500),
+    ]);
+  }
+
+  await sleep(500);
+
+  await runQueue([
+    msg('emily', 'Bueno...', 400),
+    msg('emily', 'Ya empezó el modo papá del servidor.', 600),
+    msg('gyro', 'Con todo lo que puedes encontrar en otros server, es mejor prevenir.', 800),
+    msg('pat', 'Qué miedo.', 400),
+    msg('zas', 'No es solo eso.', 500),
+    msg('zas', 'También…', 400),
+    msg('zas', 'Bueno.', 300),
+    msg('zas', 'Es ' + gendered('nuevx') + '.', 500),
+    msg('emily', 'AWWW.', 400),
+    msg('gyro', '¿escucharon eso?', 500),
+    msg('pat', 'ya tome SS.', 400),
+    msg('zas', 'Dios no.', 500),
+    msg('gyro', 'Oye.', 400),
+    msg('gyro', 'Zas', 300),
+    msg('gyro', '¿Qué estuviste haciendo toda la tarde?', 600),
+    msg('gyro', 'Porque no aparecías.', 500),
+    msg('emily', 'Pensé que te habías quedado dormido en la computadora otra vez.', 800),
+    msg('zas', 'No.', 300),
+    msg('zas', 'Estaba terminando algo.', 600),
+    msg('pat', 'Suena sospechoso.', 500),
+    msg('gyro', 'Demasiado.', 400),
+    msg('emily', '¿Qué hiciste?', 500),
+    msg('zas', 'Un juego.', 600),
+    msg('zas', '...', 400),
+  ]);
+
+  await sleep(800);
+
+  await runQueue([
+    msg('gyro', 'JAJAJA.', 400),
+    msg('gyro', 'No.', 300),
+    msg('emily', '¿Perdón?', 400),
+    msg('pat', '¿Tú?', 400),
+    msg('juca', 'Eso no me lo esperaba.', 500),
+    msg('zas', '¿Por qué rayos todos reaccionan igual?', 600),
+    msg('gyro', 'Porque normalmente cuando dices "hice algo" termina siendo un programa de seguridad o conexiones seguras.', 800),
+    msg('emily', 'O un documento de veinte páginas de algo que te gusto.', 800),
+    msg('pat', 'Con índice.', 400),
+    msg('gyro', 'Y notas al pie.', 400),
+    msg('zas', '…', 400),
+    msg('zas', 'Qué mala imagen tienen de mí.', 600),
+    msg('emily', 'Bueno...', 400),
+    msg('emily', '¿Y de qué es?', 500),
+    msg('zas', 'Hay que construir una torre colocando bloques.', 700),
+    msg('zas', 'Cada cierto tiempo aparece uno nuevo.', 600),
+    msg('zas', 'Gana quien consiga mantenerla en pie.', 600),
+    msg('zas', 'No es complicado.', 500),
+    msg('zas', 'Bueno...', 400),
+    msg('zas', 'Eso espero.', 400),
+    msg('gyro', '¿Lo probaste?', 400),
+    msg('zas', 'Sí.', 300),
+    msg('gyro', '¿Y ganaste?', 400),
+    msg('zas', 'Obviamente.', 400),
+    msg('emily', 'Qué humilde.', 400),
+    msg('zas', 'Lo hice solo.', 500),
+    msg('zas', 'Hubiera sido preocupante perder.', 600),
+  ]);
+
+  await sleep(400);
+
+  var gameChoice = 0;
+  await showAndWaitForResponse([
+    { text: 'Tengo ganas de probarlo.', onSelect: function(resolve) { gameChoice = 0; C.zas.pct += 10; showHeart('zas'); resolve(); } },
+    { text: 'Suena interesante.', onSelect: function(resolve) { gameChoice = 1; resolve(); } },
+    { text: 'Espero que no sea demasiado complicado.', onSelect: function(resolve) { gameChoice = 2; C.zas.pct = Math.max(0, C.zas.pct - 10); resolve(); } }
+  ]);
+
+  if (gameChoice === 0) {
+    await runQueue([
+      msg('zas', 'Me alegra.', 500),
+      msg('zas', 'La verdad...', 400),
+      msg('zas', 'Solo quería una excusa para que estuviéramos todos un rato.', 800),
+      msg('zas', 'Hace tiempo que no coincidíamos los cinco.', 700),
+      msg('zas', 'Y pensé que así sería más fácil incluirte sin hacerte sentir como ' + nuevaTerm + ' todo el tiempo.', 800),
+    ]);
+  } else if (gameChoice === 1) {
+    await runQueue([
+      msg('zas', 'Eso espero.', 400),
+      msg('zas', 'Si sale mal, fingiremos que nunca pasó.', 600),
+    ]);
+  } else {
+    await runQueue([
+      msg('zas', 'Si algo no queda claro, te ayudo.', 600),
+      msg('zas', 'No tendría gracia si alguien se queda fuera por no entender las reglas.', 800),
+    ]);
+  }
+
+  await sleep(500);
+
+  await runQueue([
+    msg('emily', 'Si pierdo voy a culpar a Gyro.', 600),
+    msg('gyro', '¿Antes de empezar?', 400),
+    msg('emily', 'Voy adelantando trabajo.', 500),
+    msg('pat', 'Eso ahorra tiempo.', 400),
+    msg('juca', 'No creo que eso sea justo.', 500),
+    msg('emily', 'Nunca lo ha sido.', 500),
+    msg('gyro', 'Apuesto diez robux a que Pat tira la torre.', 600),
+    msg('pat', 'Apuesto veinte a que tú haces trampa.', 600),
+    msg('gyro', '¿Hay pruebas?', 400),
+    msg('pat', 'Todavía no.', 400),
+    msg('pat', 'Pero las habrá.', 500),
+    msg('zas', '¿Ya terminaron?', 500),
+    msg('emily', 'No.', 300),
+    msg('emily', 'aunque me encantaría terminar con "' + currentUser + '"', 700),
+    msg('emily', '!image.png', 400),
+    msg('emily', 'Pero podemos hacer una pausa.', 600),
+    sysMsg('Zas ha baneado a Emily 60 segundos', 500),
+    msg('zas', 'Perfecto.', 400),
+    msg('zas', 'Entonces entren al canal de juegos cuando quieran.', 700),
+    msg('zas', 'Ya está listo.', 500),
+    msg('gyro', 'si esto explota fue culpa de Zas.', 600),
+    msg('emily', '!image.png', 400),
+    msg('pat', 'Qué exagerados.', 400),
+    msg('juca', 'Nos vemos dentro.', 500),
+    msg('zas', 'Bueno...', 400),
+    msg('zas', 'Supongo que oficialmente ya dejaste de ser ' + nuevaTerm + '.', 800),
+    msg('zas', 'Así que...', 400),
+    msg('zas', gendered('Bienvenidx') + '.', 500),
+    msg('zas', 'De verdad.', 500),
+    msg('zas', '...', 400),
+    msg('zas', 'Espero que te la pases bien con nosotros.', 700),
+    msg('emily', 'AY NO.', 400),
+    msg('emily', 'CASI DIJO ALGO LINDO.', 600),
+    msg('gyro', 'ALGUIEN GRABE ESTO.', 600),
+    msg('pat', 'No vuelve a pasar.', 400),
+    msg('juca', 'Fue bonito.', 400),
+    msg('zas', '...', 400),
+    msg('zas', 'Entren al juego antes de que me arrepienta.', 700),
+    msg('emily', 'JAJAJAJA.', 500),
+    msg('gyro', 'ahí está.', 400),
+    msg('gyro', 'volvió el Zas de siempre.', 500),
+  ]);
+
+  appendSystemMsg('[Canal 🎮 Juegos desbloqueado]');
 
   canSendMessages = true;
 
@@ -2418,7 +2611,7 @@ function startGame() {
             winSound();
             scoreBar.innerHTML = '<span style="font-family:\'Press Start 2P\',cursive;font-size:14px;color:#44ff44;text-shadow:0 0 15px #44ff44">GANASTE! +10% Zas</span>';
             C.zas.pct += 10;
-            showHeart();
+            showHeart('zas');
             runPostGameDMs();
             break;
           }
@@ -2823,7 +3016,7 @@ function startBombGame() {
         if (!bombState.gyroAdded) {
           bombState.gyroAdded = true;
           C.gyro.pct += 10;
-          showHeart();
+          showHeart('gyro');
         }
         gc.style.cursor = 'default';
         runPostBombChat();
@@ -2838,7 +3031,7 @@ function startBombGame() {
       if (!bombState.gyroAdded) {
         bombState.gyroAdded = true;
         C.gyro.pct += 10;
-        showHeart();
+        showHeart('gyro');
       }
     }
   }
@@ -2936,7 +3129,7 @@ async function playPendingDM(channelKey) {
 
     if (chosen >= 0) {
       C.zas.pct += 5;
-      showHeart();
+      showHeart('zas');
     } else {
       C.zas.pct = Math.max(0, C.zas.pct - 5);
     }
