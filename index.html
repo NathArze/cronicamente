@@ -1378,6 +1378,8 @@ function switchChannel(name) {
     setTimeout(function() {
       if (currentDay === 3) {
         startBombGame();
+      } else if (currentDay === 2) {
+        startBlockTower();
       } else {
         startGame();
       }
@@ -2283,6 +2285,8 @@ var gameInterval = null;
 var gameAudioCtx = null;
 var bombGameActive = false;
 var bombTimerInterval = null;
+var towerActive = false;
+var towerTimers = [];
 
 function shootSound() {
   if (!gameAudioCtx) return;
@@ -2392,6 +2396,11 @@ function boomSound() {
 function stopGame() {
   gameRunning = false;
   bombGameActive = false;
+  towerActive = false;
+  if (towerTimers && towerTimers.length) {
+    towerTimers.forEach(function(t) { clearTimeout(t); });
+    towerTimers = [];
+  }
   if (bombTimerInterval) { clearInterval(bombTimerInterval); bombTimerInterval = null; }
   var gc = document.getElementById('gameContainer');
   if (gc) gc.style.cursor = 'default';
@@ -2399,6 +2408,279 @@ function stopGame() {
   if (call) call.remove();
   var a = document.getElementById('gyroAudio');
   if (a) { try { a.pause(); a.currentTime = 0; } catch(e) {} }
+}
+
+function startBlockTower() {
+  var gc = document.getElementById('gameContainer');
+  if (!gc) return;
+  gc.innerHTML = '';
+  gc.style.cursor = 'pointer';
+  towerActive = true;
+  towerTimers = [];
+
+  var colW = 0;
+  var players = [
+    { key: 'player', name: currentUser, color: '#ff69b4', isPlayer: true, fallAt: 999999, gag: '' },
+    { key: 'emily', name: 'Emily', color: '#ff88c2', isPlayer: false, fallAt: 8000, gag: 'ERA CULPA DE GYRO' },
+    { key: 'gyro', name: 'Gyro', color: '#9966ff', isPlayer: false, fallAt: 13000, gag: 'ok, se acabó el truco' },
+    { key: 'pat', name: 'Pat', color: '#b0b0b0', isPlayer: false, fallAt: 17000, gag: 'yo no fui' },
+    { key: 'juca', name: 'Juca', color: '#66cc66', isPlayer: false, fallAt: 22000, gag: 'casi lo logro :(' },
+    { key: 'zas', name: 'Zas', color: '#ff4444', isPlayer: false, fallAt: 27000, gag: 'me distrajeron...' }
+  ];
+  var npcJitter = { emily: 9, gyro: 2, pat: 7, juca: 5, zas: 2 };
+  var npcOrder = ['emily', 'gyro', 'pat', 'juca', 'zas'];
+
+  var hud = document.createElement('div');
+  hud.id = 'towerHud';
+  hud.style.cssText = 'position:absolute;top:0;left:0;right:0;height:54px;background:rgba(0,0,0,0.85);border-bottom:1px solid #ff69b4;display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:10;gap:8px';
+  hud.innerHTML = '<span style="font-family:\'Press Start 2P\',cursive;font-size:9px;color:#ff69b4">TORRE DE BLOQUES</span><span id="towerStanding" style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#ccc">en pie: 6/6</span><span id="towerBlocks" style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#ff69b4">' + currentUser + ': 0 bloques</span>';
+  gc.appendChild(hud);
+
+  var playArea = document.createElement('div');
+  playArea.style.cssText = 'position:absolute;top:54px;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;padding:0 4px 20px;z-index:1';
+  gc.appendChild(playArea);
+
+  var towers = [];
+  var standing = players.length;
+  var gameStarted = false;
+  var ended = false;
+  var startTime = 0;
+
+  function clearTimers() {
+    towerTimers.forEach(function(t) { clearTimeout(t); });
+    towerTimers = [];
+  }
+
+  function updateHud() {
+    var st = document.getElementById('towerStanding');
+    var bl = document.getElementById('towerBlocks');
+    if (st) st.textContent = 'en pie: ' + standing + '/6';
+    if (bl) bl.textContent = currentUser + ': ' + towers[0].blocks + ' bloques';
+  }
+
+  function makeColumn(p) {
+    var col = document.createElement('div');
+    col.style.cssText = 'position:relative;width:14%;max-width:110px;height:100%;margin:0 2px';
+    var label = document.createElement('div');
+    label.style.cssText = 'position:absolute;top:0;left:0;right:0;text-align:center;font-family:\'Press Start 2P\',cursive;font-size:8px;color:' + p.color + ';z-index:5;text-shadow:0 0 8px ' + p.color;
+    label.textContent = p.isPlayer ? currentUser.charAt(0).toUpperCase() : p.name.charAt(0).toUpperCase();
+    col.appendChild(label);
+    var nameTag = document.createElement('div');
+    nameTag.style.cssText = 'position:absolute;top:14px;left:0;right:0;text-align:center;font-family:\'Share Tech Mono\',monospace;font-size:9px;color:#aaa;z-index:5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    nameTag.textContent = p.isPlayer ? currentUser : p.name;
+    col.appendChild(nameTag);
+    var ground = document.createElement('div');
+    ground.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:6px;background:' + p.color + ';opacity:0.5;border-radius:2px';
+    col.appendChild(ground);
+    var stackEl = document.createElement('div');
+    stackEl.style.cssText = 'position:absolute;bottom:6px;left:0;right:0';
+    col.appendChild(stackEl);
+    var tower = {
+      key: p.key, name: p.name, color: p.color, isPlayer: p.isPlayer,
+      fallAt: p.fallAt, gag: p.gag,
+      col: col, stackEl: stackEl,
+      stack: [], blocks: 0, collapsed: false,
+      moverEl: null, moverLeft: 0, moverDir: 1, moverW: 0
+    };
+    playArea.appendChild(col);
+    return tower;
+  }
+
+  players.forEach(function(p) { towers.push(makeColumn(p)); });
+  colW = towers[0].col.clientWidth || 60;
+
+  function pushBlock(tower, left, width, opts) {
+    opts = opts || {};
+    var bot = tower.blocks * 20;
+    var b = document.createElement('div');
+    b.style.cssText = 'position:absolute;left:' + left + 'px;bottom:' + bot + 'px;width:' + width + 'px;height:20px;background:linear-gradient(180deg,' + tower.color + ',' + tower.color + 'cc);box-shadow:0 0 6px ' + tower.color + '66;border-radius:2px;border-top:1px solid #ffffff33';
+    tower.stackEl.appendChild(b);
+    if (!opts.noStack) tower.stack.push({ left: left, width: width });
+    tower.blocks++;
+    if (opts.fall) {
+      b.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+      (function(bb, dy) {
+        requestAnimationFrame(function() {
+          bb.style.transform = 'translateY(' + dy + 'px) rotate(25deg)';
+          bb.style.opacity = '0';
+        });
+      })(b, bot + 40);
+    }
+    return b;
+  }
+
+  towers.forEach(function(t) { pushBlock(t, 0, colW, false); });
+
+  function spawnPlayerMover() {
+    var t = towers[0];
+    if (!t || t.collapsed) return;
+    var topW = t.stack[t.stack.length - 1].width;
+    t.moverW = Math.min(topW, colW * 0.66);
+    var m = document.createElement('div');
+    m.style.cssText = 'position:absolute;bottom:' + (t.blocks * 20) + 'px;height:20px;width:' + t.moverW + 'px;background:linear-gradient(180deg,#ff69b4,#ff1493);box-shadow:0 0 10px #ff69b4;border-radius:2px;border-top:1px solid #ffffff66;z-index:3';
+    t.stackEl.appendChild(m);
+    t.moverEl = m;
+    t.moverLeft = 0;
+    t.moverDir = 1;
+  }
+
+  function pushOverhang(t, left, w) {
+    var bot = t.blocks * 20;
+    var b = document.createElement('div');
+    b.style.cssText = 'position:absolute;left:' + left + 'px;bottom:' + bot + 'px;width:' + w + 'px;height:20px;background:linear-gradient(180deg,' + t.color + ',' + t.color + '99);border-radius:2px;z-index:2';
+    t.stackEl.appendChild(b);
+    b.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+    (function(bb, dy) {
+      requestAnimationFrame(function() {
+        bb.style.transform = 'translateY(' + dy + 'px) rotate(30deg)';
+        bb.style.opacity = '0';
+      });
+    })(b, bot + 40);
+  }
+
+  function placePlayerBlock() {
+    var t = towers[0];
+    if (!t || t.collapsed || !gameStarted || ended) return;
+    if (!t.moverEl) return;
+    var top = t.stack[t.stack.length - 1];
+    var ml = t.moverLeft;
+    var mw = t.moverW;
+    var ol = Math.max(ml, top.left);
+    var orr = Math.min(ml + mw, top.left + top.width);
+    var ov = orr - ol;
+    if (ov <= 0) {
+      clipSound();
+      t.collapsed = true;
+      t.stackEl.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+      t.stackEl.style.transform = 'translateY(60px)';
+      t.stackEl.style.opacity = '0.4';
+      setTimeout(function() { endGame(false); }, 700);
+      return;
+    }
+    clipSound();
+    if (ml < top.left) pushOverhang(t, ml, top.left - ml);
+    if (ml + mw > top.left + top.width) pushOverhang(t, top.left + top.width, (ml + mw) - (top.left + top.width));
+    t.moverEl.remove();
+    t.moverEl = null;
+    pushBlock(t, ol, ov, false);
+    updateHud();
+    spawnPlayerMover();
+  }
+
+  function towerLoop() {
+    if (!towerActive || ended) return;
+    var t = towers[0];
+    if (t && !t.collapsed && t.moverEl && gameStarted) {
+      var max = colW - t.moverW;
+      t.moverLeft += t.moverDir * (1.2 + Math.min(3, t.blocks * 0.1));
+      if (t.moverLeft >= max) { t.moverLeft = max; t.moverDir = -1; }
+      if (t.moverLeft <= 0) { t.moverLeft = 0; t.moverDir = 1; }
+      t.moverEl.style.left = t.moverLeft + 'px';
+    }
+    requestAnimationFrame(towerLoop);
+  }
+
+  function showBubble(t, text) {
+    var b = document.createElement('div');
+    b.style.cssText = 'position:absolute;top:-6px;left:50%;transform:translateX(-50%) translateY(-100%);background:#111;border:1px solid ' + t.color + ';color:#fff;font-family:\'Share Tech Mono\',monospace;font-size:9px;padding:6px 8px;border-radius:6px;z-index:15;white-space:nowrap;max-width:160px;text-align:center;pointer-events:none;animation:fadeIn .3s ease';
+    b.textContent = text;
+    t.col.appendChild(b);
+    setTimeout(function() { b.remove(); }, 3200);
+  }
+
+  function collapseTower(t) {
+    if (t.collapsed) return;
+    t.collapsed = true;
+    boomSound();
+    t.stackEl.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+    t.stackEl.style.transform = 'translateY(' + (t.blocks * 20 + 40) + 'px)';
+    t.stackEl.style.opacity = '0.4';
+    standing--;
+    updateHud();
+    if (t.gag) showBubble(t, t.gag);
+    if (!t.isPlayer) {
+      var to = setTimeout(function() {
+        if (!ended && standing <= 1) endGame(true);
+      }, 800);
+      towerTimers.push(to);
+    }
+  }
+
+  function npcGrow(t) {
+    if (!towerActive || ended || t.collapsed) return;
+    var elapsed = Date.now() - startTime;
+    if (elapsed >= t.fallAt) {
+      collapseTower(t);
+      return;
+    }
+    var top = t.stack[t.stack.length - 1];
+    var jit = npcJitter[t.key] || 3;
+    var shrink = jit * (0.4 + Math.random() * 0.6);
+    var newW = Math.max(4, top.width - shrink);
+    var left = top.left + (Math.random() * 2 - 1) * (top.width - newW);
+    left = Math.max(0, Math.min(colW - newW, left));
+    pushBlock(t, left, newW, false);
+  }
+
+  function scheduleNpc(t, delay) {
+    var to = setTimeout(function() {
+      if (!towerActive || ended) return;
+      npcGrow(t);
+      if (!t.collapsed && !ended) scheduleNpc(t, 950 + Math.random() * 150);
+    }, delay);
+    towerTimers.push(to);
+  }
+
+  function showResultOverlay(title, sub, extra, color) {
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;cursor:pointer';
+    ov.innerHTML = '<div style="font-family:\'Press Start 2P\',cursive;font-size:18px;color:' + color + ';text-align:center;text-shadow:0 0 25px ' + color + '">' + title + '</div><div style="font-family:\'Share Tech Mono\',monospace;font-size:12px;color:#ccc;text-align:center;padding:0 30px">' + sub + (extra ? '<br><span style="color:#ff69b4">' + extra + '</span>' : '') + '</div><div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#666">[ clic para continuar ]</div>';
+    gc.appendChild(ov);
+    ov.addEventListener('click', function() {
+      ov.remove();
+      runPostGameDMs();
+    });
+  }
+
+  function endGame(win) {
+    if (ended) return;
+    ended = true;
+    towerActive = false;
+    clearTimers();
+    if (win) {
+      winSound();
+      C.zas.pct += 10;
+      showHeart('zas');
+      showResultOverlay('GANASTE!', 'tu torre fue la última en pie', '+10% Zas', '#44ff44');
+    } else {
+      loseSound();
+      showResultOverlay('PERDISTE', 'tu torre se derrumbó...', '', '#ff4444');
+    }
+  }
+
+  gc.addEventListener('pointerdown', function(e) {
+    if (e.target === gc || e.target.parentNode === gc) e.preventDefault();
+    if (gameStarted) placePlayerBlock();
+  });
+
+  var intro = document.createElement('div');
+  intro.style.cssText = 'position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;cursor:pointer';
+  intro.innerHTML = '<div style="font-family:\'Press Start 2P\',cursive;font-size:13px;color:#ff69b4;text-align:center;text-shadow:0 0 20px #ff69b4;line-height:2">TORRE DE BLOQUES<br><span style="font-size:9px;color:#ccc">mantén tu torre en pie<br>más tiempo que los demás</span></div><div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:#666">[ clic para comenzar ]</div>';
+  gc.appendChild(intro);
+
+  intro.addEventListener('click', function() {
+    intro.remove();
+    gameStarted = true;
+    startTime = Date.now();
+    try { gameAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    spawnPlayerMover();
+    npcOrder.forEach(function(k, i) {
+      for (var j = 0; j < towers.length; j++) {
+        if (towers[j].key === k) { scheduleNpc(towers[j], 500 + i * 400); break; }
+      }
+    });
+    requestAnimationFrame(towerLoop);
+  });
 }
 
 async function runPostBombChat() {
