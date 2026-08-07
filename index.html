@@ -82,7 +82,7 @@
   body {
     background: #0a0a0a;
     color: var(--accent);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'Share Tech Mono', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', monospace;
     overflow: hidden;
     height: 100vh;
     height: 100dvh;
@@ -465,7 +465,7 @@
   .message-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
   .message-author { font-size: 13px; font-weight: bold; }
   .message-timestamp { font-size: 10px; color: #666; }
-  .message-text { font-size: 14px; color: #ddd; line-height: 1.4; word-break: break-word; overflow-wrap: anywhere; }
+  .message-text { font-size: 14px; color: #ddd; line-height: 1.4; word-break: break-word; overflow-wrap: anywhere; font-family: 'Share Tech Mono', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', monospace; }
   .system-msg { color: #666; font-style: italic; text-align: center; font-size: 12px; padding: 5px 0; }
 
   .chat-img-message img {
@@ -1550,7 +1550,8 @@ async function runDay1() {
     msg('emily', 'Es un guiño amistoso', 400),
     msg('zas', 'La probabilidad de que fuera interpretado como coqueteo es alta', 500),
     msg('emily', 'Gracias por tu analisis romantico, Zas', 500),
-    msg('zas', 'De nada', 300),
+    msg('zas', 'No era un análisis romántico', 400),
+    msg('emily', 'Peor todavía.', 400),
     msg('pat', 'Dios que desagradable eres Emily', 500),
     msg('gyro', 'Esto se va a poner interesante', 400),
     msg('emily', 'Esperen', 400),
@@ -1600,8 +1601,9 @@ async function runDay1() {
     msg('pat', 'A veces Zas invita bots', 400),
     msg('zas', 'Nunca he invitado bots', 500),
     msg('pat', 'Eso diria un bot', 400),
-    msg('zas', '...', 500),
-    msg('gyro', 'Zas, reproduce musica', 400),
+    msg('gyro', 'Are u Bot?', 400),
+    msg('zas', 'NEVER 🤮', 400),
+    msg('gyro', 'JAJAJAJA', 300),
     msg('pat', 'LOL', 300),
     msg('emily', 'Ignoralos', 400),
     msg('emily', 'Aunque si, esta es una bienvenida bastante normal aqui', 500),
@@ -1629,8 +1631,8 @@ async function runDay1() {
   await runQueue([
     msg('juca', gendered('Bien, entonces bienvenidx :)'), 500),
     msg('pat', 'Muy incluyente juca', 400),
-    msg('juca', 'Gracias, contigo tambien lo soy amigo', 300),
-    msg('pat', 'imbecil', 300),
+    msg('juca', 'Gracias, contigo también lo soy amigo', 300),
+    msg('pat', 'imbécil', 300),
     msg('emily', 'jajajajjaj', 400),
   ]);
 
@@ -1651,28 +1653,33 @@ async function runDay1() {
     msg('emily', 'El es Pat', 400),
     msg('pat', 'Hola,', 300),
     msg('pat', 'Me gusta las sabras habanero y jugar LOL', 500),
-    msg('emily', 'Parece que odia todo', 400),
+    msg('emily', 'es el tipico chico alternativo que parece que odia todo', 400),
     msg('pat', 'No todo', 400),
     msg('emily', 'Ah no?', 300),
     msg('pat', '...', 500),
     msg('pat', 'Algunas cosas no', 400),
     msg('gyro', 'Eso es lo mas cercano a un "me gusta algo" que vas a conseguir', 500),
-    msg('pat', 'Callate', 300),
+    msg('juca', 'yo si le gusto', 300),
+    msg('pat', 'obvio bro', 300),
+    msg('juca', 'bro...', 300),
+    msg('pat', 'ya jajjajaja', 300),
+    msg('juca', 'XD', 300),
     msg('emily', 'Gyro es amigo de Pat', 400),
     msg('gyro', 'Desafortunadamente', 400),
     msg('pat', 'Como que desafortunadamente?', 400),
     msg('gyro', 'Nos conocemos hace mucho', 500),
-    msg('emily', 'Gyro hace streams y diseno grafico', 400),
+    msg('emily', 'Gyro hace streams', 400),
     msg('emily', 'Basicamente es famoso pero intenta fingir que no', 500),
-    msg('gyro', 'No soy famoso', 400),
-    msg('pat', 'Dice la persona que entra a un juego y alguien reconoce su nombre', 600),
-    msg('gyro', 'Eso paso una vez', 400),
-    msg('pat', 'Una vez al dia, diras', 400),
-    msg('gyro', '...', 300),
+    msg('pat', 'Y luego se hace el humilde.', 400),
+    msg('gyro', 'No me hago el humilde.', 400),
+    msg('pat', '¿Cuánta gente te vio ayer?', 400),
+    msg('gyro', '...', 400),
+    msg('pat', 'Ya ves.', 400),
+    msg('gyro', 'No cuenta.', 400),
     msg('juca', 'yo creo que eres bueno Gyro :)', 500),
     msg('gyro', 'Gracias, Juca', 400),
     msg('emily', 'Ahora Juca', 400),
-    msg('juca', 'Hola otra vez :)', 400),
+    msg('juca', 'Hola otra vez xd', 400),
     msg('emily', 'Es la persona mas amable del servidor', 500),
     msg('pat', 'Demasiado', 300),
     msg('juca', 'Demasiado?', 400),
@@ -1685,7 +1692,7 @@ async function runDay1() {
     msg('emily', 'Y finalmente Zas', 400),
     msg('zas', 'Hola', 300),
     msg('emily', 'Nuestro creador', 400),
-    msg('pat', 'Nuestro soporte tecnico', 400),
+    msg('pat', 'Nuestro soporte técnico', 400),
     msg('zas', 'No se que significa eso', 500),
     msg('gyro', 'Significa que todos acudimos a ti cuando pasa algo', 500),
     msg('juca', 'Porque siempre ayudas', 400),
@@ -1697,14 +1704,14 @@ async function runDay1() {
   await sleep(500);
 
   await showAndWaitForResponse([
-    { text: 'Creo que ya entendi quien es el favorito del grupo' },
+    { text: 'Creo que ya entendí quien es el favorito del grupo' },
     { text: 'Parece que Zas es el adulto responsable jajaja' }
   ]);
 
   await sleep(500);
 
   await runQueue([
-    msg('pat', 'Bueno, se podria decir que, si es responsable, en comparacion con nosotros', 600),
+    msg('pat', 'Bueno, se podría decir que, si es responsable, en comparación con nosotros', 600),
     msg('gyro', 'Especialmente con Emily', 400),
     msg('emily', 'Oye', 300),
     msg('pat', 'Es verdad', 300),
@@ -1723,7 +1730,7 @@ async function runDay1() {
   ]);
 
   await showAndWaitForResponse([
-    { text: 'Aparecio y me dio curiosidad' },
+    { text: 'Apareció y me dio curiosidad' },
     { text: 'Estaba buscando gente para jugar' },
     { text: 'No tengo idea, creo que fue suerte' }
   ]);
@@ -1734,7 +1741,7 @@ async function runDay1() {
     msg('zas', 'Interesante', 400),
     msg('pat', 'Zas, no analices demasiado', 400),
     msg('zas', 'Solo dije interesante', 300),
-    msg('pat', 'Ya empezo', 300),
+    msg('pat', 'Ya empezó', 300),
     msg('emily', 'JAJA', 300),
     msg('emily', 'Bueno, otra pregunta importante', 500),
     msg('emily', 'Que juegos juegas?', 400),
@@ -1774,14 +1781,14 @@ async function runDay1() {
   ]);
 
   await showAndWaitForResponse([
-    { text: 'Normalmente juego solo, pero estaria bien conocer gente' },
-    { text: 'Me gusta jugar acompanado' }
+    { text: 'Normalmente juego solo, pero estaría bien conocer gente' },
+    { text: 'Me gusta jugar acompañado' }
   ]);
 
   await sleep(500);
 
   await runQueue([
-    msg('zas', 'Creo que deberiamos hacer una actividad manana', 600),
+    msg('zas', 'Creo que deberíamos hacer una actividad mañana', 600),
     msg('pat', 'Actividad?', 400),
     msg('zas', 'Si', 300),
     msg('zas', 'Para integrar al nuevo miembro', 500),
@@ -1793,7 +1800,7 @@ async function runDay1() {
     msg('zas', 'No es una bienvenida oficial', 400),
     msg('pat', 'Es una bienvenida oficial', 300),
     msg('gyro', 'Bastante oficial', 300),
-    msg('juca', 'Me parece buena idea :)', 400),
+    msg('juca', 'Me parece buena idea', 400),
     msg('emily', 'Entonces ya esta decidido', 400),
   ]);
 
@@ -1804,34 +1811,34 @@ async function runDay1() {
   await sleep(300);
 
   await runQueue([
-    msg('emily', 'Manana jugamos', 400),
+    msg('emily', 'Mañana jugamos', 400),
     msg('pat', 'Ya decidiste por todos?', 400),
     msg('emily', 'Si', 300),
-    msg('pat', 'Increible', 300),
+    msg('pat', 'Increíble', 300),
     msg('pat', 'Ni siquiera me sorprende', 400),
     msg('gyro', 'Tiene talento para eso', 400),
     msg('emily', 'Gracias', 300),
     msg('gyro', 'No era un cumplido', 400),
     msg('emily', 'Lo acepto igual', 300),
-    msg('zas', 'Podemos elegir un juego manana', 500),
-    msg('zas', 'Asi todos pueden participar', 400),
+    msg('zas', 'Podemos elegir un juego mañana', 500),
+    msg('zas', 'Así todos pueden participar', 400),
     msg('juca', 'Que juegos tienen?', 400),
     msg('emily', 'Muchos', 300),
     msg('pat', 'Demasiados', 300),
     msg('gyro', 'Zas tiene una lista', 400),
-    msg('zas', 'Tengo una lista organizada', 500),
+    msg('zas', 'Tengo una lista organizada, aunque pensare en algo especial', 500),
     msg('pat', 'Claro que si', 300),
     msg('emily', 'Ves?', 300),
     msg('emily', 'Por eso lo queremos', 400),
     msg('zas', 'No entiendo por que siguen diciendo eso', 500),
     msg('juca', 'Porque es verdad :)', 400),
-    msg('gyro', 'Acostumbrate', 300),
+    msg('gyro', 'Acostúmbrate', 300),
     msg('pat', 'No va a cambiar', 300),
-    msg('zas', 'Entendido', 400),
+    msg('zas', 'pff', 400),
   ]);
 
   await showAndWaitForResponse([
-    { text: 'Me parece bien, manana jugamos entonces' },
+    { text: 'Me parece bien, mañana jugamos entonces' },
     { text: 'Espero no me tengan que acarrear jajaja' }
   ]);
 
@@ -1841,7 +1848,7 @@ async function runDay1() {
     msg('emily', 'Bueno', 400),
     msg('emily', 'Creo que ya molestamos suficiente por hoy', 500),
     msg('juca', 'Si, ya es tarde', 400),
-    msg('gyro', 'Ademas manana tenemos que demostrar que sabemos jugar minimamente bien', 600),
+    msg('gyro', 'Además mañana tenemos que demostrar que sabemos jugar mínimamente bien', 600),
     msg('pat', 'Habla por ti', 400),
     msg('pat', 'Yo si se jugar', 400),
     msg('emily', 'Eso dicen todos antes de perder', 500),
@@ -1850,12 +1857,12 @@ async function runDay1() {
     msg('pat', 'Porque eres insoportable cuando ganas', 500),
     msg('emily', 'Porque gano', 400),
     msg('gyro', 'Punto para Emily', 400),
-    msg('pat', 'Traicion', 300),
+    msg('pat', 'Traición', 300),
     msg('juca', 'JAJA', 300),
     msg('zas', 'Entonces queda acordado', 500),
-    msg('zas', 'Manana nos conectamos y jugamos', 400),
+    msg('zas', 'Mañana nos jugamos', 400),
     msg('emily', 'Si', 300),
-    msg('emily', 'Y esta vez no desaparezcas', 500),
+    msg('emily', 'Y espero no desaparezcas', 500),
   ]);
 
   await showAndWaitForResponse([
@@ -1866,22 +1873,22 @@ async function runDay1() {
   await sleep(500);
 
   await runQueue([
-    msg('juca', 'Bueno, me tengo que ir ya, ire a cenar', 600),
-    msg('juca', 'Me dio gusto conocerte :)', 500),
-    msg('gyro', 'Nos vemos manana', 400),
+    msg('juca', 'Bueno, me tengo que ir ya, ire a cenar xd', 600),
+    msg('juca', 'Me dio gusto conocerte 💚', 500),
+    msg('gyro', 'Nos vemos mañana', 400),
     msg('gyro', gendered('Bienvenidx al servidor'), 500),
     msg('pat', 'Si', 300),
     msg('pat', gendered('Bienvenidx supongo'), 400),
     msg('emily', 'Wow', 300),
     msg('emily', 'Eso fue casi una bienvenida real', 500),
-    msg('pat', 'Callate', 300),
+    msg('pat', 'Cállate', 300),
     msg('zas', 'Buenas noches', 400),
     msg('zas', 'Me alegra que hayas entrado al servidor', 500),
-    msg('zas', 'Espero verte manana de nuevo', 400),
+    msg('zas', 'Espero verte mañana de nuevo', 400),
   ]);
 
   await showAndWaitForResponse([
-    { text: 'Gracias, nos vemos manana' },
+    { text: 'Gracias, nos vemos mañana' },
     { text: 'Buenas noches, gracias por aceptarme' }
   ]);
 
@@ -1890,9 +1897,10 @@ async function runDay1() {
   await runQueue([
     msg('emily', 'Nos vemos', 400),
     msg('juca', 'Descansa :)', 300),
-    msg('gyro', 'Hasta manana', 300),
+    msg('gyro', 'Hasta mañana', 300),
     msg('pat', 'Buenas noches', 300),
-    msg('zas', 'Hasta manana', 400),
+    msg('zas', 'Gracias por quedarte.', 400),
+    msg('zas', 'Espero que mañana también tengas ganas de entrar.', 500),
   ]);
 
   await sleep(500);
