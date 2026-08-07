@@ -7,6 +7,10 @@
 <link rel="icon" type="image/png" href="icono.png">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --accent: #ff69b4;
+    --accent-rgb: 255, 105, 180;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   @keyframes glitch {
@@ -38,8 +42,8 @@
   }
 
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 5px #ff69b4, 0 0 10px #ff69b4; }
-    50% { box-shadow: 0 0 15px #ff69b4, 0 0 30px #ff69b4, 0 0 45px #ff00ff; }
+    0%, 100% { box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent); }
+    50% { box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent), 0 0 45px #ff00ff; }
   }
 
   @keyframes heartbeat {
@@ -77,7 +81,7 @@
 
   body {
     background: #0a0a0a;
-    color: #ff69b4;
+    color: var(--accent);
     font-family: 'Share Tech Mono', monospace;
     overflow: hidden;
     height: 100vh;
@@ -100,7 +104,7 @@
     content: '';
     position: absolute;
     width: 100%; height: 200px;
-    background: linear-gradient(transparent, rgba(255,105,180,0.03), transparent);
+    background: linear-gradient(transparent, rgba(var(--accent-rgb),0.03), transparent);
     animation: scanline 6s linear infinite;
   }
 
@@ -119,7 +123,7 @@
   .game-title {
     font-family: 'Press Start 2P', cursive;
     font-size: 28px;
-    color: #ff69b4;
+    color: var(--accent);
     animation: glitch 0.3s infinite, flicker 4s infinite;
     margin-bottom: 5px;
     line-height: 1.6;
@@ -133,7 +137,7 @@
   }
 
   .login-box {
-    border: 2px solid #ff69b4;
+    border: 2px solid var(--accent);
     padding: 30px 40px;
     background: rgba(26,10,26,0.9);
     min-width: 320px;
@@ -143,15 +147,15 @@
     font-family: 'Press Start 2P', cursive;
     font-size: 10px;
     margin-bottom: 20px;
-    color: #ff69b4;
+    color: var(--accent);
   }
 
   .login-box input {
     width: 100%;
     padding: 10px;
     background: #0a0a0a;
-    border: 1px solid #ff69b4;
-    color: #ff69b4;
+    border: 1px solid var(--accent);
+    color: var(--accent);
     font-family: 'Share Tech Mono', monospace;
     font-size: 14px;
     margin-bottom: 15px;
@@ -164,17 +168,17 @@
     width: 100%;
     padding: 12px;
     background: transparent;
-    border: 2px solid #ff69b4;
-    color: #ff69b4;
+    border: 2px solid var(--accent);
+    color: var(--accent);
     font-family: 'Press Start 2P', cursive;
     font-size: 10px;
     cursor: pointer;
     transition: all 0.3s;
   }
   .login-btn:hover {
-    background: #ff69b4;
+    background: var(--accent);
     color: #0a0a0a;
-    box-shadow: 0 0 20px rgba(255,105,180,0.5);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb),0.5);
   }
 
   .error-msg {
@@ -195,7 +199,7 @@
   .pronoun-box {
     text-align: center;
     animation: fadeIn 1s ease;
-    border: 2px solid #ff69b4;
+    border: 2px solid var(--accent);
     padding: 30px 40px;
     background: rgba(26,10,26,0.9);
   }
@@ -204,7 +208,7 @@
     font-family: 'Press Start 2P', cursive;
     font-size: 10px;
     margin-bottom: 15px;
-    color: #ff69b4;
+    color: var(--accent);
   }
 
   .pronoun-box p {
@@ -216,8 +220,8 @@
 
   .pronoun-btn {
     background: transparent;
-    border: 2px solid #ff69b4;
-    color: #ff69b4;
+    border: 2px solid var(--accent);
+    color: var(--accent);
     padding: 15px 20px;
     cursor: pointer;
     font-family: 'Share Tech Mono', monospace;
@@ -225,9 +229,9 @@
     min-width: 120px;
   }
   .pronoun-btn:hover {
-    background: #ff69b4;
+    background: var(--accent);
     color: #0a0a0a;
-    box-shadow: 0 0 20px rgba(255,105,180,0.5);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb),0.5);
   }
 
   .pronoun-label {
@@ -246,7 +250,7 @@
 
   .glitch-bar {
     height: 4px;
-    background: linear-gradient(90deg, transparent, #ff69b4, #ff00ff, #ff69b4, transparent);
+    background: linear-gradient(90deg, transparent, var(--accent), #ff00ff, var(--accent), transparent);
     width: 100%;
     animation: glitch 0.5s infinite;
   }
@@ -263,7 +267,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    border: 2px solid #ff69b4;
+    border: 2px solid var(--accent);
     padding: 15px 25px;
     background: rgba(26,10,26,0.9);
     cursor: pointer;
@@ -271,13 +275,13 @@
     text-align: left;
   }
   .server-card:hover {
-    background: rgba(255,105,180,0.1);
-    box-shadow: 0 0 20px rgba(255,105,180,0.3);
+    background: rgba(var(--accent-rgb),0.1);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb),0.3);
   }
 
   .server-icon {
     width: 50px; height: 50px;
-    background: linear-gradient(135deg, #ff69b4, #ff00ff);
+    background: linear-gradient(135deg, var(--accent), #ff00ff);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -320,7 +324,7 @@
     border-bottom: 1px solid #1a1525;
     font-family: 'Press Start 2P', cursive;
     font-size: 10px;
-    color: #ff69b4;
+    color: var(--accent);
   }
 
   .channel-category {
@@ -343,8 +347,8 @@
     font-size: 13px;
     color: #666;
   }
-  .channel:hover { background: rgba(255,105,180,0.08); }
-  .channel.active { background: rgba(255,105,180,0.15); color: #ff69b4; border-left-color: #ff69b4; }
+  .channel:hover { background: rgba(var(--accent-rgb),0.08); }
+  .channel.active { background: rgba(var(--accent-rgb),0.15); color: var(--accent); border-left-color: var(--accent); }
   .channel-hash { font-weight: bold; margin-right: 2px; }
   .channel-name { font-family: 'Share Tech Mono', monospace; }
   .dm-channel { gap: 8px; }
@@ -367,7 +371,7 @@
 
   .user-avatar-panel {
     width: 32px; height: 32px;
-    background: linear-gradient(135deg, #ff69b4, #ff00ff);
+    background: linear-gradient(135deg, var(--accent), #ff00ff);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -423,7 +427,7 @@
     border-bottom: 1px solid #1a1525;
     margin-bottom: 10px;
   }
-  .welcome-icon { font-size: 30px; margin-bottom: 10px; color: #ff69b4; }
+  .welcome-icon { font-size: 30px; margin-bottom: 10px; color: var(--accent); }
   .welcome-title { font-family: 'Press Start 2P', cursive; font-size: 12px; margin-bottom: 5px; }
   .welcome-desc { font-size: 11px; color: #666; }
 
@@ -444,7 +448,7 @@
     gap: 12px;
     padding: 4px 0;
   }
-  .message:hover { background: rgba(255,105,180,0.03); }
+  .message:hover { background: rgba(var(--accent-rgb),0.03); }
 
   .message-avatar {
     width: 36px; height: 36px;
@@ -488,7 +492,7 @@
     max-width: 90vw;
     max-height: 85vh;
     border-radius: 4px;
-    box-shadow: 0 0 30px rgba(255,105,180,0.3);
+    box-shadow: 0 0 30px rgba(var(--accent-rgb),0.3);
   }
   #imgLightboxClose {
     position: absolute;
@@ -505,7 +509,7 @@
     transition: all 0.2s;
     background: rgba(0,0,0,0.5);
   }
-  #imgLightboxClose:hover { background: #ff69b4; border-color: #ff69b4; color: #0a0a0a; }
+  #imgLightboxClose:hover { background: var(--accent); border-color: var(--accent); color: #0a0a0a; }
 
   .typing-indicator {
     padding: 4px 16px;
@@ -516,7 +520,7 @@
   .typing-dots { display: inline-flex; gap: 3px; }
   .typing-dots span {
     width: 4px; height: 4px;
-    background: #ff69b4;
+    background: var(--accent);
     border-radius: 50%;
     animation: blink 1s infinite;
   }
@@ -534,8 +538,8 @@
 
   .response-btn {
     background: linear-gradient(135deg, #1a0a1a, #120612);
-    border: 1px solid #ff69b4;
-    color: #ff69b4;
+    border: 1px solid var(--accent);
+    color: var(--accent);
     padding: 10px 20px;
     font-family: 'Share Tech Mono', monospace;
     font-size: 13px;
@@ -548,9 +552,9 @@
     box-sizing: border-box;
   }
   .response-btn:hover {
-    background: #ff69b4;
+    background: var(--accent);
     color: #0a0a0a;
-    box-shadow: 0 0 15px rgba(255,105,180,0.4);
+    box-shadow: 0 0 15px rgba(var(--accent-rgb),0.4);
   }
   .response-btn::before { content: '\25B8 '; opacity: 0.5; }
 
@@ -568,7 +572,7 @@
     padding: 10px;
     background: #0a0a0a;
     border: 1px solid #333;
-    color: #ff69b4;
+    color: var(--accent);
     font-family: 'Share Tech Mono', monospace;
     font-size: 14px;
     outline: none;
@@ -576,7 +580,7 @@
   .chat-input::placeholder { color: #663355; }
   .send-btn {
     padding: 10px 16px;
-    background: #ff69b4;
+    background: var(--accent);
     border: none;
     color: #0a0a0a;
     font-family: 'Press Start 2P', cursive;
@@ -584,7 +588,7 @@
     cursor: pointer;
     transition: all 0.3s;
   }
-  .send-btn:hover { box-shadow: 0 0 15px rgba(255,105,180,0.5); }
+  .send-btn:hover { box-shadow: 0 0 15px rgba(var(--accent-rgb),0.5); }
 
   .users-sidebar {
     width: 180px;
@@ -649,7 +653,7 @@
   .day-text {
     font-family: 'Press Start 2P', cursive;
     font-size: 36px;
-    color: #ff69b4;
+    color: var(--accent);
     animation: glitch 0.3s infinite;
   }
   .day-sub {
@@ -699,10 +703,10 @@
   }
   .modal-btn-no {
     background: transparent;
-    border-color: #ff69b4;
-    color: #ff69b4;
+    border-color: var(--accent);
+    color: var(--accent);
   }
-  .modal-btn-no:hover { background: #ff69b4; color: #0a0a0a; }
+  .modal-btn-no:hover { background: var(--accent); color: #0a0a0a; }
 
   @media (max-width: 900px) {
     .users-sidebar { display: none; }
@@ -789,9 +793,9 @@
   <source src="gyroaudio.wav" type="audio/wav">
 </audio>
 
-<div id="musicToggle" title="Musica ON/OFF" style="position:fixed;bottom:20px;right:20px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ff69b4">&#9835;</div>
-<div id="settingsBtn" title="Configuracion" style="position:fixed;bottom:20px;right:70px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-size:18px;color:#ff69b4">&#9881;</div>
-<div id="skipBtn" title="Saltar dialogue" style="position:fixed;bottom:70px;right:20px;z-index:10001;cursor:pointer;padding:10px 14px;background:rgba(26,10,26,.8);border:1px solid #ff69b4;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4"><span class="skip-icon" style="display:none">&#187;&#187;</span><span class="skip-label">saltar</span></div>
+<div id="musicToggle" title="Musica ON/OFF" style="position:fixed;bottom:20px;right:20px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--accent)">&#9835;</div>
+<div id="settingsBtn" title="Configuracion" style="position:fixed;bottom:20px;right:70px;z-index:10001;cursor:pointer;width:40px;height:40px;background:rgba(26,10,26,.8);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--accent)">&#9881;</div>
+<div id="skipBtn" title="Saltar dialogue" style="position:fixed;bottom:70px;right:20px;z-index:10001;cursor:pointer;padding:10px 14px;background:rgba(26,10,26,.8);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',cursive;font-size:8px;color:var(--accent)"><span class="skip-icon" style="display:none">&#187;&#187;</span><span class="skip-label">saltar</span></div>
 
 <div class="scanline-overlay"></div>
 
@@ -868,13 +872,13 @@
   </div>
   <div class="chat-area">
     <div class="chat-header">
-      <button id="menuBtn" type="button" title="Canales" style="display:none;background:transparent;border:1px solid #ff69b4;color:#ff69b4;width:30px;height:30px;font-size:14px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center">&equiv;</button>
+      <button id="menuBtn" type="button" title="Canales" style="display:none;background:transparent;border:1px solid var(--accent);color:var(--accent);width:30px;height:30px;font-size:14px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center">&equiv;</button>
       <span class="chat-header-hash" id="chatHeaderHash">#</span>
       <span class="chat-header-name" id="chatHeaderName">general</span>
       <div class="chat-header-divider"></div>
       <span class="chat-header-topic" id="chatHeaderTopic">chat general - el corazon del servidor</span>
       <div style="flex:1"></div>
-      <button id="perfilBtn" style="display:none;background:transparent;border:1px solid #ff69b4;color:#ff69b4;font-family:'Press Start 2P',cursive;font-size:8px;padding:6px 14px;cursor:pointer;transition:all 0.3s;white-space:nowrap" onmouseover="this.style.background='#ff69b4';this.style.color='#0a0a0a'" onmouseout="this.style.background='transparent';this.style.color='#ff69b4'">perfil</button>
+      <button id="perfilBtn" style="display:none;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Press Start 2P',cursive;font-size:8px;padding:6px 14px;cursor:pointer;transition:all 0.3s;white-space:nowrap" onmouseover="this.style.background='var(--accent)';this.style.color='#0a0a0a'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">perfil</button>
     </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="typing-indicator" id="typingIndicator"></div>
@@ -922,8 +926,8 @@
     <h2>&#128197; SELECCIONAR DIA</h2>
     <p style="font-size:12px;color:#cc6666;margin-bottom:20px">avanza hasta un dia especifico</p>
     <div class="modal-btns" style="flex-direction:column;gap:10px">
-      <button type="button" class="modal-btn" id="diasDay1" style="border-color:#ff69b4;color:#ff69b4;width:100%">DIA 1</button>
-      <button type="button" class="modal-btn" id="diasDay2" style="border-color:#ff69b4;color:#ff69b4;width:100%">DIA 2</button>
+      <button type="button" class="modal-btn" id="diasDay1" style="border-color:var(--accent);color:var(--accent);width:100%">DIA 1</button>
+      <button type="button" class="modal-btn" id="diasDay2" style="border-color:var(--accent);color:var(--accent);width:100%">DIA 2</button>
       <button type="button" class="modal-btn" id="diasDay3" style="border-color:#ff4444;color:#ff4444;width:100%">DIA 3</button>
       <button type="button" class="modal-btn modal-btn-no" id="diasClose" style="margin-top:5px">CANCELAR</button>
     </div>
@@ -931,20 +935,20 @@
 </div>
 
 <div class="modal-overlay" id="configModal">
-  <div class="modal-box" style="min-width:340px;max-width:380px;border-color:#ff69b4">
-    <h2 style="color:#ff69b4">[ CONFIGURACION ]</h2>
-    <div style="text-align:center;font-family:'Press Start 2P',cursive;font-size:8px;color:#ff69b4;margin-bottom:20px">MUSICA</div>
+  <div class="modal-box" style="min-width:340px;max-width:380px;border-color:var(--accent)">
+    <h2 style="color:var(--accent)">[ CONFIGURACION ]</h2>
+    <div style="text-align:center;font-family:'Press Start 2P',cursive;font-size:8px;color:var(--accent);margin-bottom:20px">MUSICA</div>
     <div style="display:flex;flex-direction:column;gap:20px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#ccc">
       <div>
         <div style="margin-bottom:8px;color:#ddd">Volumen de la musica</div>
-        <input type="range" id="musicVolumeSlider" min="0" max="100" value="30" style="width:100%;accent-color:#ff69b4;cursor:pointer">
+        <input type="range" id="musicVolumeSlider" min="0" max="100" value="30" style="width:100%;accent-color:var(--accent);cursor:pointer">
         <div id="musicVolumeLabel" style="margin-top:4px;font-size:11px;color:#888">30%</div>
       </div>
       <div style="border-top:1px solid #2a2a2a;padding-top:20px">
         <div style="margin-bottom:8px;color:#ddd">Guardar partida</div>
         <div style="display:flex;gap:10px">
-          <button type="button" class="modal-btn" id="saveGameBtn" style="border-color:#ff69b4;color:#ff69b4;flex:1">GUARDAR</button>
-          <button type="button" class="modal-btn" id="loadGameBtn" style="border-color:#ff69b4;color:#ff69b4;flex:1">CARGAR</button>
+          <button type="button" class="modal-btn" id="saveGameBtn" style="border-color:var(--accent);color:var(--accent);flex:1">GUARDAR</button>
+          <button type="button" class="modal-btn" id="loadGameBtn" style="border-color:var(--accent);color:var(--accent);flex:1">CARGAR</button>
         </div>
         <div id="saveGameStatus" style="margin-top:8px;font-size:11px;color:#44ff44;min-height:14px"></div>
       </div>
@@ -964,6 +968,22 @@
 var currentUser = null;
 var playerPronoun = 'el';
 var currentDay = 1;
+var favoriteColor = null;
+var serverColors = {
+  rosa: { hex: '#ff69b4', rgb: '255, 105, 180' },
+  azul: { hex: '#4da6ff', rgb: '77, 166, 255' },
+  verde: { hex: '#44ff88', rgb: '68, 255, 136' },
+  morado: { hex: '#b45bff', rgb: '180, 91, 255' },
+  amarillo: { hex: '#ffd23e', rgb: '255, 210, 62' }
+};
+function applyServerColor(key) {
+  var c = serverColors[key];
+  if (!c) return;
+  favoriteColor = key;
+  var root = document.documentElement;
+  root.style.setProperty('--accent', c.hex);
+  root.style.setProperty('--accent-rgb', c.rgb);
+}
 var dialogueRunning = false;
 var canSendMessages = false;
 var musicPlaying = false;
@@ -978,7 +998,7 @@ function startMusic() {
   bgMusic.volume = 0.3;
   bgMusic.play().then(function() {
     musicPlaying = true;
-    musicToggle.style.color = '#ff69b4';
+    musicToggle.style.color = 'var(--accent)';
   }).catch(function() {});
 }
 
@@ -1439,6 +1459,9 @@ function sendMessage() {
 
 function showDayTransition(day, subtext) {
   return new Promise(function(resolve) {
+    if (day >= 4 && favoriteColor) {
+      applyServerColor(favoriteColor);
+    }
     var el = document.getElementById('dayTransition');
     document.getElementById('dayText').textContent = 'DIA ' + day;
     document.getElementById('daySub').textContent = subtext;
@@ -1877,7 +1900,7 @@ async function runDay1() {
   var endDayBox = document.createElement('div');
   endDayBox.className = 'message';
   endDayBox.style.animation = 'fadeIn .3s ease';
-  endDayBox.innerHTML = '<div class="message-content" style="width:100%;text-align:center"><div style="display:inline-block;border:1px solid #ff69b4;padding:16px 30px;background:rgba(26,10,26,0.9);text-align:center"><div style="color:#ff69b4;font-family:\'Press Start 2P\',cursive;font-size:11px;letter-spacing:1px;margin-bottom:14px">TERMINAR DIA 1</div><button id="endDayBtn" style="background:transparent;border:1px solid #ff69b4;color:#ff69b4;font-family:\'Share Tech Mono\',monospace;font-size:13px;padding:8px 24px;cursor:pointer;transition:all 0.3s">aceptar</button></div></div>';
+  endDayBox.innerHTML = '<div class="message-content" style="width:100%;text-align:center"><div style="display:inline-block;border:1px solid var(--accent);padding:16px 30px;background:rgba(26,10,26,0.9);text-align:center"><div style="color:var(--accent);font-family:\'Press Start 2P\',cursive;font-size:11px;letter-spacing:1px;margin-bottom:14px">TERMINAR DIA 1</div><button id="endDayBtn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:\'Share Tech Mono\',monospace;font-size:13px;padding:8px 24px;cursor:pointer;transition:all 0.3s">aceptar</button></div></div>';
   mc.appendChild(endDayBox);
   mc.scrollTop = mc.scrollHeight;
 
@@ -2217,7 +2240,7 @@ async function runDay1() {
   var endDay2Box = document.createElement('div');
   endDay2Box.className = 'message';
   endDay2Box.style.animation = 'fadeIn .3s ease';
-  endDay2Box.innerHTML = '<div class="message-content" style="width:100%;text-align:center"><div style="display:inline-block;border:1px solid #ff69b4;padding:16px 30px;background:rgba(26,10,26,0.9);text-align:center"><div style="color:#ff69b4;font-family:\'Press Start 2P\',cursive;font-size:11px;letter-spacing:1px;margin-bottom:14px">TERMINAR DIA 2</div><button id="endDay2Btn" style="background:transparent;border:1px solid #ff69b4;color:#ff69b4;font-family:\'Share Tech Mono\',monospace;font-size:13px;padding:8px 24px;cursor:pointer;transition:all 0.3s">aceptar</button></div></div>';
+  endDay2Box.innerHTML = '<div class="message-content" style="width:100%;text-align:center"><div style="display:inline-block;border:1px solid var(--accent);padding:16px 30px;background:rgba(26,10,26,0.9);text-align:center"><div style="color:var(--accent);font-family:\'Press Start 2P\',cursive;font-size:11px;letter-spacing:1px;margin-bottom:14px">TERMINAR DIA 2</div><button id="endDay2Btn" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:\'Share Tech Mono\',monospace;font-size:13px;padding:8px 24px;cursor:pointer;transition:all 0.3s">aceptar</button></div></div>';
   mc3.appendChild(endDay2Box);
   mc3.scrollTop = mc3.scrollHeight;
 
@@ -2726,6 +2749,33 @@ async function runPostBombChat() {
     msg('gyro', 'NO MIREN ESO', 300),
     msg('emily', 'jajajajaja', 300),
     msg('juca', 'ya es tarde', 300),
+  ]);
+
+  await sleep(600);
+
+  await runQueue([
+    msg('zas', '...', 500),
+    msg('zas', 'Antes de que te vayas, una pregunta', 600),
+    msg('zas', 'Cual es tu color favorito?', 500),
+    msg('emily', 'uy, primer dato personal', 400),
+    msg('gyro', 'callate, dejala/déjalo responder', 400),
+  ]);
+
+  await showAndWaitForResponse([
+    { text: 'Rosa', onSelect: function(resolve) { favoriteColor = 'rosa'; resolve(); } },
+    { text: 'Azul', onSelect: function(resolve) { favoriteColor = 'azul'; resolve(); } },
+    { text: 'Verde', onSelect: function(resolve) { favoriteColor = 'verde'; resolve(); } },
+    { text: 'Morado', onSelect: function(resolve) { favoriteColor = 'morado'; resolve(); } },
+    { text: 'Amarillo', onSelect: function(resolve) { favoriteColor = 'amarillo'; resolve(); } }
+  ]);
+
+  await sleep(400);
+
+  await runQueue([
+    msg('zas', 'Ok.', 400),
+    msg('zas', 'Nos vemos.', 400),
+    msg('gyro', 'buenas noches', 300),
+    msg('emily', 'chau!!', 300),
   ]);
 }
 
